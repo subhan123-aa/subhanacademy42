@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 52" role="img" aria-labelledby="title">
+  <title id="title">UPI</title>
+  <path fill="#6C2C91" d="M25 9h10.5L25 43H14.5L25 9Z"/>
+  <path fill="#F58220" d="M38 9h10.5L38 43H27.5L38 9Z"/>
+  <path fill="#2B9B47" d="M51 9h10.5L51 43H40.5L51 9Z"/>
+  <path fill="#6C2C91" d="M72 13.2c0-2.3 1.8-4.2 4.2-4.2h13.2c7.2 0 12.1 4 12.1 10.4 0 6.5-4.9 10.5-12.1 10.5H80.5V43H72V13.2Zm8.5 9.6h8.2c3.8 0 6.1-1 6.1-3.4 0-2.3-2.3-3.3-6.1-3.3h-8.2v6.7Z"/>
+  <path fill="#6C2C91" d="M106.2 9h8.5v25.9h16.8V43h-25.3V9Z"/>
+  <path fill="#6C2C91" d="M136.2 9h8.5v34h-8.5V9Z"/>
+</svg>

@@ -1,0 +1,27 @@
+<svg width="1080" height="1920" viewBox="0 0 1080 1920" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1080" height="1920" fill="#F6FCF8"/>
+  <rect x="72" y="84" width="936" height="104" rx="34" fill="white"/>
+  <text x="112" y="148" fill="#0F172A" font-family="Inter, Arial, sans-serif" font-size="32" font-weight="700">Cart & Checkout</text>
+  <rect x="72" y="236" width="936" height="300" rx="42" fill="#16A34A"/>
+  <text x="112" y="308" fill="white" font-family="Inter, Arial, sans-serif" font-size="44" font-weight="800">Secure checkout</text>
+  <text x="112" y="364" fill="#DCFCE7" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="500">Cash on delivery and instant payment.</text>
+  <rect x="72" y="586" width="936" height="980" rx="42" fill="white"/>
+  <g transform="translate(108 636)">
+    <rect width="864" height="168" rx="30" fill="#F8FCF9"/>
+    <text x="36" y="70" fill="#0F172A" font-family="Inter, Arial, sans-serif" font-size="30" font-weight="700">Cart item</text>
+    <text x="36" y="116" fill="#64748B" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="500">Tomatoes • Quantity 2</text>
+    <text x="704" y="104" fill="#16A34A" font-family="Inter, Arial, sans-serif" font-size="30" font-weight="800">₹88</text>
+  </g>
+  <g transform="translate(108 832)">
+    <rect width="864" height="170" rx="30" fill="#F0FBF4"/>
+    <text x="36" y="70" fill="#0F172A" font-family="Inter, Arial, sans-serif" font-size="30" font-weight="700">Delivery address</text>
+    <text x="36" y="118" fill="#64748B" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="500">Bandra East, Mumbai</text>
+  </g>
+  <g transform="translate(108 1030)">
+    <rect width="864" height="170" rx="30" fill="#F8FCF9"/>
+    <text x="36" y="70" fill="#0F172A" font-family="Inter, Arial, sans-serif" font-size="30" font-weight="700">Payment method</text>
+    <text x="36" y="118" fill="#64748B" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="500">UPI • Cash • Card</text>
+  </g>
+  <rect x="108" y="1260" width="864" height="120" rx="34" fill="#16A34A"/>
+  <text x="384" y="1336" fill="white" font-family="Inter, Arial, sans-serif" font-size="34" font-weight="800">Place order</text>
+</svg>

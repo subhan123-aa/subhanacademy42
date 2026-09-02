@@ -1,0 +1,33 @@
+<svg width="1080" height="1920" viewBox="0 0 1080 1920" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1080" height="1920" fill="#F4FBF7"/>
+  <rect x="72" y="84" width="936" height="90" rx="28" fill="white"/>
+  <text x="112" y="140" fill="#0F172A" font-family="Inter, Arial, sans-serif" font-size="30" font-weight="700">Products</text>
+  <rect x="72" y="220" width="936" height="160" rx="36" fill="#16A34A"/>
+  <text x="112" y="282" fill="white" font-family="Inter, Arial, sans-serif" font-size="42" font-weight="800">Categories</text>
+  <text x="112" y="332" fill="#DCFCE7" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="500">Vegetables, fruits, dairy and essentials.</text>
+  <rect x="72" y="430" width="936" height="1220" rx="42" fill="white"/>
+  <g transform="translate(108 480)">
+    <rect width="864" height="170" rx="30" fill="#F8FCF9"/>
+    <text x="36" y="72" fill="#16A34A" font-family="Inter, Arial, sans-serif" font-size="30" font-weight="700">Vegetables</text>
+    <text x="36" y="118" fill="#64748B" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="500">24 items</text>
+    <rect x="684" y="40" width="120" height="90" rx="24" fill="#DCFCE7"/>
+  </g>
+  <g transform="translate(108 674)">
+    <rect width="864" height="170" rx="30" fill="#F0FBF4"/>
+    <text x="36" y="72" fill="#16A34A" font-family="Inter, Arial, sans-serif" font-size="30" font-weight="700">Fruits</text>
+    <text x="36" y="118" fill="#64748B" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="500">18 items</text>
+    <rect x="684" y="40" width="120" height="90" rx="24" fill="#BBF7D0"/>
+  </g>
+  <g transform="translate(108 868)">
+    <rect width="864" height="170" rx="30" fill="#F8FCF9"/>
+    <text x="36" y="72" fill="#16A34A" font-family="Inter, Arial, sans-serif" font-size="30" font-weight="700">Dairy</text>
+    <text x="36" y="118" fill="#64748B" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="500">12 items</text>
+    <rect x="684" y="40" width="120" height="90" rx="24" fill="#DCFCE7"/>
+  </g>
+  <g transform="translate(108 1062)">
+    <rect width="864" height="170" rx="30" fill="#F0FBF4"/>
+    <text x="36" y="72" fill="#16A34A" font-family="Inter, Arial, sans-serif" font-size="30" font-weight="700">Staples</text>
+    <text x="36" y="118" fill="#64748B" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="500">30 items</text>
+    <rect x="684" y="40" width="120" height="90" rx="24" fill="#BBF7D0"/>
+  </g>
+</svg>

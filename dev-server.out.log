@@ -1,0 +1,195 @@
+
+> subhan-academy@1.0.0 dev
+> next dev
+
+   ▲ Next.js 15.4.2
+   - Local:        http://localhost:3000
+   - Network:      http://192.168.0.103:3000
+
+ ✓ Starting...
+ ✓ Ready in 5.6s
+ ○ Compiling /_not-found ...
+ ✓ Compiled / in 27.6s (678 modules)
+ GET / 200 in 28082ms
+ GET / 200 in 4782ms
+ GET /_next/static/webpack/71922bf8a6caaad6.webpack.hot-update.json 404 in 30574ms
+ GET / 200 in 2148ms
+ GET / 200 in 495ms
+ ○ Compiling /checkout ...
+ ✓ Compiled /checkout in 3.7s (719 modules)
+ GET /checkout?course=sabjihub-blueprint 200 in 4625ms
+ GET /checkout?course=sabjihub-blueprint 200 in 120ms
+ GET /checkout?course=sabjihub-blueprint 200 in 558ms
+ ✓ Compiled in 451ms (278 modules)
+ GET /checkout?course=sabjihub-blueprint 200 in 143ms
+ ✓ Compiled in 701ms (733 modules)
+ GET /checkout?course=sabjihub-blueprint 200 in 339ms
+ ✓ Compiled in 213ms (278 modules)
+ GET /checkout?course=sabjihub-blueprint 200 in 36ms
+ ○ Compiling /_error ...
+ GET /checkout?course=sabjihub-blueprint 500 in 6080ms
+ GET /checkout?course=sabjihub-blueprint 500 in 19ms
+ GET /checkout?course=sabjihub-blueprint 500 in 20ms
+ GET /checkout?course=sabjihub-blueprint 500 in 34ms
+ ✓ Compiled /_not-found in 1620ms (973 modules)
+ GET /_next/static/webpack/44a3e99d29dac603.webpack.hot-update.json 404 in 1994ms
+ GET /checkout?course=sabjihub-blueprint 200 in 338ms
+ ✓ Compiled in 894ms (973 modules)
+ GET /checkout?course=sabjihub-blueprint 200 in 283ms
+ ✓ Compiled in 411ms (424 modules)
+ GET /checkout?course=sabjihub-blueprint 200 in 88ms
+ ✓ Compiled in 1381ms (966 modules)
+ GET /checkout?course=sabjihub-blueprint 200 in 432ms
+ GET / 200 in 396ms
+ GET /checkout?course=sabjihub-blueprint 200 in 279ms
+ ✓ Compiled in 2.6s (979 modules)
+ GET /checkout?course=sabjihub-blueprint 200 in 442ms
+ ✓ Compiled in 579ms (979 modules)
+ GET /checkout?course=sabjihub-blueprint 200 in 290ms
+ GET /checkout?course=sabjihub-blueprint 200 in 2325ms
+ GET / 200 in 390ms
+ GET /checkout?course=sabjihub-blueprint 200 in 497ms
+ GET / 200 in 3216ms
+ ✓ Compiled in 11.6s (976 modules)
+ GET / 200 in 1767ms
+ GET / 200 in 3949ms
+ GET / 200 in 624ms
+ ✓ Compiled in 3s (427 modules)
+ GET / 200 in 144ms
+ ✓ Compiled in 2.9s (1022 modules)
+ GET / 200 in 658ms
+ ✓ Compiled in 3.8s (1022 modules)
+ GET / 200 in 691ms
+ GET / 200 in 3813ms
+ GET / 200 in 986ms
+ GET / 200 in 740ms
+ ✓ Compiled in 4.5s (1022 modules)
+ GET / 200 in 377ms
+ GET / 200 in 793ms
+ GET / 200 in 415ms
+ GET / 200 in 3361ms
+ GET / 200 in 1312ms
+ ○ Compiling /blog ...
+ ✓ Compiled /blog in 8.6s (1013 modules)
+ GET /blog 200 in 9867ms
+ GET / 200 in 7843ms
+ GET / 200 in 450ms
+ GET / 200 in 1341ms
+ ✓ Compiled in 1891ms (1023 modules)
+ ✓ Compiled in 493ms (1023 modules)
+ GET / 200 in 431ms
+ GET / 200 in 80ms
+ GET / 200 in 1097ms
+ GET / 200 in 474ms
+ GET / 200 in 423ms
+ GET / 200 in 233ms
+ GET / 200 in 331ms
+ ○ Compiling /courses ...
+ ✓ Compiled /courses in 3.1s (1014 modules)
+ GET /courses 200 in 4389ms
+ GET / 200 in 3064ms
+ GET / 200 in 651ms
+ GET / 200 in 381ms
+ GET / 200 in 329ms
+ GET / 200 in 239ms
+ GET / 200 in 322ms
+ GET /checkout?course=sabjihub-blueprint 200 in 168ms
+ ✓ Compiled in 4.6s (443 modules)
+ GET / 200 in 257ms
+ ✓ Compiled in 1667ms (1024 modules)
+ ✓ Compiled in 261ms (443 modules)
+ ✓ Compiled in 666ms (1024 modules)
+ ✓ Compiled in 248ms (443 modules)
+ ✓ Compiled in 205ms (443 modules)
+ ✓ Compiled in 234ms (443 modules)
+ ✓ Compiled in 290ms (443 modules)
+ ✓ Compiled in 195ms (443 modules)
+ ✓ Compiled in 183ms (443 modules)
+ ✓ Compiled in 330ms (443 modules)
+ ✓ Compiled in 1222ms (1024 modules)
+ ✓ Compiled in 195ms (443 modules)
+ ✓ Compiled in 427ms (1010 modules)
+ ✓ Compiled in 265ms (443 modules)
+ ✓ Compiled in 523ms (1024 modules)
+ ✓ Compiled in 213ms (443 modules)
+ ✓ Compiled in 403ms (1024 modules)
+ ✓ Compiled in 166ms (443 modules)
+ ✓ Compiled in 237ms (443 modules)
+ ✓ Compiled in 1063ms (443 modules)
+ GET / 200 in 3659ms
+ ○ Compiling /middleware ...
+ ✓ Compiled /middleware in 10s (108 modules)
+ ○ Compiling /auth/login ...
+ ✓ Compiled /auth/login in 17.7s (1018 modules)
+ GET /auth/login?next=%2Fadmin 200 in 24324ms
+ ○ Compiling /api/auth/login ...
+ ✓ Compiled /api/auth/login in 8.4s (1047 modules)
+ POST /api/auth/login 400 in 10631ms
+ POST /api/auth/login 400 in 485ms
+ POST /api/auth/login 400 in 140ms
+ POST /api/auth/login 400 in 223ms
+ POST /api/auth/login 200 in 611ms
+ ○ Compiling /admin ...
+ ✓ Compiled /admin in 12.1s (1118 modules)
+ POST /api/auth/login 200 in 5269ms
+ GET /admin 200 in 14205ms
+ GET /admin 200 in 307ms
+ GET /admin 200 in 308ms
+ GET /admin 200 in 213ms
+ GET /admin 200 in 286ms
+ GET / 200 in 504ms
+ GET /auth/login?next=%2Fadmin 200 in 404ms
+ POST /api/auth/login 200 in 254ms
+ GET /admin 200 in 176ms
+ GET /admin 200 in 361ms
+ GET /auth/login?next=%2Fadmin 200 in 1039ms
+ ✓ Compiled in 17.5s (1089 modules)
+ GET /auth/login?next=%2Fadmin 200 in 534ms
+ GET / 200 in 298ms
+ ✓ Compiled in 4.8s (1089 modules)
+ GET / 200 in 402ms
+ GET /auth/login?next=%2Fadmin 200 in 59ms
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 1831ms (619 modules)
+ ○ Compiling /_error ...
+ ✓ Compiled /_error in 2.5s (1177 modules)
+ GET /_next/static/webpack/app/layout.21d96e46009382ec.hot-update.js 500 in 6505ms
+ GET /_next/static/webpack/webpack.21d96e46009382ec.hot-update.js 500 in 2499ms
+ GET /auth/login?next=%2Fadmin 200 in 1307ms
+ GET /auth/login?next=%2Fadmin 200 in 2049ms
+ ○ Compiling /auth/signup ...
+ ✓ Compiled /courses in 16.9s (1085 modules)
+ GET /auth/forgot-password 200 in 18552ms
+ GET /auth/reset-password 200 in 18554ms
+ GET /courses 200 in 18540ms
+ GET /auth/signup 200 in 18564ms
+ ○ Compiling /api/auth/login ...
+ ✓ Compiled /api/auth/login in 2.2s (657 modules)
+ POST /api/auth/login 200 in 3603ms
+ GET /admin 200 in 686ms
+ ○ Compiling /_not-found ...
+ ✓ Compiled /_not-found in 1944ms (658 modules)
+ ○ Compiling /_error ...
+ GET /admin 200 in 4928ms
+ ✓ Compiled /_error in 3.5s (1202 modules)
+ GET /_next/static/chunks/app-pages-internals.js 500 in 10635ms
+ GET /_next/static/chunks/app/layout.js 500 in 6038ms
+ GET /_next/static/chunks/app/error.js 500 in 6030ms
+ GET /_next/static/chunks/app/not-found.js 500 in 6002ms
+ GET /admin 200 in 6600ms
+ GET /_next/static/css/app/layout.css?v=1787341850343 500 in 953ms
+ GET /_next/static/chunks/main-app.js?v=1787341850343 500 in 897ms
+ GET /_next/static/chunks/app/layout.js 500 in 894ms
+ GET /_next/static/chunks/app-pages-internals.js 500 in 889ms
+ GET /_next/static/chunks/app/error.js 500 in 504ms
+ GET /_next/static/chunks/app/not-found.js 500 in 181ms
+ GET /_next/static/chunks/app/admin/page.js 500 in 176ms
+ GET /_next/static/css/app/layout.css?v=1787341867082 500 in 787ms
+ GET /_next/static/chunks/main-app.js?v=1787341867082 500 in 785ms
+ GET /_next/static/chunks/app/layout.js 500 in 818ms
+ GET /_next/static/chunks/app-pages-internals.js 500 in 474ms
+ GET /_next/static/chunks/app/error.js 500 in 474ms
+ GET /_next/static/chunks/app/not-found.js 500 in 457ms
+ GET / 200 in 4262ms
+ GET /_next/static/chunks/app/page.js 500 in 112ms
+[?25h
