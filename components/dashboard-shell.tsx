@@ -50,12 +50,14 @@ export function DashboardShell({
   title,
   subtitle,
   children,
-  admin = false
+  admin = false,
+  studentCourseHref
 }: {
   title: string;
   subtitle: string;
   children: React.ReactNode;
   admin?: boolean;
+  studentCourseHref?: string;
 }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -73,7 +75,9 @@ export function DashboardShell({
     return search ? `${pathname}?${search}` : pathname;
   }, [pathname, searchParams]);
 
-  const navItems = admin ? adminNavItems : studentNavItems;
+  const navItems = admin
+    ? adminNavItems
+    : studentNavItems.map((item) => item.label === "My Course" && studentCourseHref ? { ...item, href: studentCourseHref } : item);
 
   return (
     <div className="min-h-screen bg-[linear-gradient(180deg,#ffffff_0%,#f8fafc_100%)]">

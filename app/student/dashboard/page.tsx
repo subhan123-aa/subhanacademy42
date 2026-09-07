@@ -20,7 +20,8 @@ export default async function StudentDashboardPage({
 
   if (!currentUser) redirect("/auth/login?next=/student/dashboard");
   const paidCourseIds = new Set(orders.filter((order) => order.userId === currentUser.id && order.status === "paid").map((order) => order.courseId));
-  const purchasedCourses = courses.filter((item) => paidCourseIds.has(item.id));
+  const enrolledCourseIds = new Set(enrollments.filter((enrollment) => enrollment.userId === currentUser.id && (enrollment.status === "active" || enrollment.status === undefined)).map((enrollment) => enrollment.courseId));
+  const purchasedCourses = courses.filter((item) => paidCourseIds.has(item.id) && enrolledCourseIds.has(item.id));
   const course = purchasedCourses[0];
   const enrollment = enrollments.find((item) => item.userId === currentUser.id && item.courseId === course?.id);
   const userProgress = progress.find((item) => item.userId === currentUser.id && item.courseId === course?.id);
@@ -30,7 +31,11 @@ export default async function StudentDashboardPage({
   const modules = course?.modules.slice().sort((a, b) => a.order - b.order) ?? [];
 
   return (
-    <DashboardShell title="Student Dashboard" subtitle="Continue learning and track your progress.">
+    <DashboardShell
+      title="Student Dashboard"
+      subtitle="Continue learning and track your progress."
+      studentCourseHref={course ? `/student/courses/${course.id}` : "/student/dashboard?tab=courses"}
+    >
       <div className="grid gap-7">
         <section className="relative overflow-hidden rounded-[2rem] border border-brand-100 bg-brand-50 p-6 shadow-soft sm:p-8">
           <div className="relative z-10 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">

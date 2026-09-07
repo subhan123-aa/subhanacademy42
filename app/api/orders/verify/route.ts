@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyPaymentSchema } from "@/lib/schemas";
-import { getStore, saveStore } from "@/lib/data";
+import { getStore } from "@/lib/data";
 import { getRequestUser } from "@/lib/request-auth";
-import { activateCourseEnrollment, verifyRazorpaySignature } from "@/lib/razorpay";
+import { completeCashfreeOrder, isCashfreeOrderPaid } from "@/lib/cashfree";
 
 export async function POST(req: NextRequest) {
   try {
@@ -15,58 +15,18 @@ export async function POST(req: NextRequest) {
     if (!order) return NextResponse.json({ error: "Order not found." }, { status: 404 });
 
     if (order.status === "paid") {
+      await completeCashfreeOrder(order);
       return NextResponse.json({ message: "Payment verified and enrollment complete.", nextUrl: "/student/dashboard" });
     }
 
-    if (body.mode === "razorpay") {
-      if (!body.razorpayOrderId || !body.razorpayPaymentId || !body.razorpaySignature) {
-        order.status = "failed";
-        await saveStore("orders", orders);
-        return NextResponse.json({ error: "Missing payment details." }, { status: 400 });
-      }
-
-      if (order.providerOrderId && order.providerOrderId !== body.razorpayOrderId) {
-        order.status = "failed";
-        await saveStore("orders", orders);
-        return NextResponse.json({ error: "Order mismatch during payment verification." }, { status: 400 });
-      }
-
-      if (!verifyRazorpaySignature({
-        orderId: body.razorpayOrderId,
-        paymentId: body.razorpayPaymentId,
-        signature: body.razorpaySignature
-      })) {
-        order.status = "failed";
-        order.providerPaymentId = body.razorpayPaymentId;
-        await saveStore("orders", orders);
-        return NextResponse.json({ error: "Payment verification failed." }, { status: 400 });
-      }
-
-      order.providerOrderId = body.razorpayOrderId;
-      order.providerPaymentId = body.razorpayPaymentId;
+    const providerOrderId = body.cashfreeOrderId || order.providerOrderId;
+    if (!providerOrderId || providerOrderId !== order.providerOrderId) {
+      return NextResponse.json({ error: "Order mismatch during payment verification." }, { status: 400 });
     }
-
-    order.status = "paid";
-    order.paidAt = new Date().toISOString();
-    await saveStore("orders", orders);
-
-    const users = await getStore("users");
-    const account = users.find((item) => item.id === user.id);
-    if (account?.pendingPayment) {
-      account.pendingPayment = false;
-      await saveStore("users", users);
-    }
-
-    await activateCourseEnrollment(user.id, order.courseId, order.id);
-
-    if (order.couponCode) {
-      const coupons = await getStore("coupons");
-      const coupon = coupons.find((item) => item.code.toLowerCase() === order.couponCode?.toLowerCase());
-      if (coupon) {
-        coupon.usedCount += 1;
-        await saveStore("coupons", coupons);
-      }
-    }
+    const payment = await isCashfreeOrderPaid(providerOrderId);
+    if (!payment.paid) return NextResponse.json({ error: "Cashfree payment is not successful yet." }, { status: 400 });
+    order.providerOrderId = providerOrderId;
+    await completeCashfreeOrder(order, body.cashfreePaymentId || payment.paymentId);
 
     return NextResponse.json({ message: "Payment verified and enrollment complete.", nextUrl: "/student/dashboard" });
   } catch (error) {

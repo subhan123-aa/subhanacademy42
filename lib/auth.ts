@@ -2,8 +2,16 @@ import crypto from "crypto";
 import type { Role, User } from "@/lib/types";
 
 const SESSION_COOKIE = "subhan_session";
-const SESSION_SECRET = process.env.SESSION_SECRET || "subhan-academy-dev-secret";
 const ITERATIONS = 120000;
+
+function getSessionSecret() {
+  const secret = process.env.SESSION_SECRET?.trim();
+  if (secret) return secret;
+  if (process.env.NODE_ENV === "production") {
+    throw new Error("SESSION_SECRET must be set in production.");
+  }
+  return "subhan-academy-dev-secret";
+}
 
 function base64Url(input: Buffer | string) {
   return Buffer.from(input).toString("base64").replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
@@ -29,6 +37,7 @@ export function verifyPassword(password: string, stored: string) {
 }
 
 export function signSession(user: Pick<User, "id" | "email" | "role" | "name">) {
+  const SESSION_SECRET = getSessionSecret();
   const payload = base64Url(
     JSON.stringify({
       sub: user.id,
@@ -43,6 +52,7 @@ export function signSession(user: Pick<User, "id" | "email" | "role" | "name">) 
 }
 
 export function verifySession(token?: string | null) {
+  const SESSION_SECRET = getSessionSecret();
   if (!token) return null;
   const [payload, signature] = token.split(".");
   if (!payload || !signature) return null;

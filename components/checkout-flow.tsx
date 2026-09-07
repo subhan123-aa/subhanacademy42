@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -69,6 +69,50 @@ export function CheckoutFlow({
   const [couponMessage, setCouponMessage] = useState<string | null>(null);
   const [couponBusy, setCouponBusy] = useState(false);
   const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const orderId = params.get("order_ref");
+    const cashfreeOrderId = params.get("cashfree_order_id") || params.get("order_id");
+    if (!orderId || !cashfreeOrderId) return;
+
+    let cancelled = false;
+    const wait = (milliseconds: number) => new Promise((resolve) => window.setTimeout(resolve, milliseconds));
+
+    async function verifyReturnedPayment() {
+      for (let attempt = 0; attempt < 8; attempt += 1) {
+        const response = await fetch("/api/orders/verify", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ orderId, cashfreeOrderId })
+        });
+        const data = await response.json();
+        if (response.ok) return data as { nextUrl?: string };
+
+        const isPending = response.status === 400 && String(data.error || "").toLowerCase().includes("not successful yet");
+        if (!isPending || attempt === 7) throw new Error(data.error || "Payment verification failed.");
+        await wait(1500);
+      }
+      throw new Error("Payment verification timed out. Please refresh this page in a moment.");
+    }
+
+    setBusy(true);
+    verifyReturnedPayment()
+      .then((data) => {
+        if (cancelled) return;
+        toast.success("Payment successful. Enrollment complete.");
+        router.replace(data.nextUrl || "/student/dashboard");
+        router.refresh();
+      })
+      .catch((error) => {
+        if (!cancelled) toast.error(error instanceof Error ? error.message : "Payment verification failed.");
+      })
+      .finally(() => {
+        if (!cancelled) setBusy(false);
+      });
+
+    return () => { cancelled = true; };
+  }, [router]);
 
   const pricing = getCoursePricing(course);
   const subtotal = pricing.offerPrice;
@@ -196,75 +240,31 @@ export function CheckoutFlow({
       const data = await orderResponse.json();
       if (!orderResponse.ok) throw new Error(data.error || "Unable to create order.");
 
-      const razorpayKey = data.razorpayKeyId;
-      if (!razorpayKey) {
-        throw new Error("Razorpay is not configured. Please set the Razorpay keys before checkout.");
+      const paymentSessionId = data.cashfreePaymentSessionId;
+      if (!paymentSessionId) {
+        throw new Error("Cashfree is not configured. Please set the Cashfree credentials before checkout.");
       }
 
       if (typeof window === "undefined") {
-        throw new Error("Razorpay checkout is only available in the browser.");
+        throw new Error("Cashfree checkout is only available in the browser.");
       }
 
       await new Promise<void>((resolve, reject) => {
-        if ((window as Window & { Razorpay?: unknown }).Razorpay) {
+        if ((window as Window & { Cashfree?: unknown }).Cashfree) {
           resolve();
           return;
         }
 
         const script = document.createElement("script");
-        script.src = "https://checkout.razorpay.com/v1/checkout.js";
+        script.src = "https://sdk.cashfree.com/js/v3/cashfree.js";
         script.async = true;
         script.onload = () => resolve();
-        script.onerror = () => reject(new Error("Unable to load Razorpay checkout script."));
+        script.onerror = () => reject(new Error("Unable to load Cashfree checkout script."));
         document.body.appendChild(script);
       });
 
-      const razorpayConstructor = (window as unknown as { Razorpay: new (options: Record<string, unknown>) => { open: () => void } }).Razorpay;
-      const options = {
-        key: razorpayKey,
-        order_id: data.order.providerOrderId,
-        amount: Math.round((data.order.total ?? 0) * 100),
-        currency: "INR",
-        name: "Subhan Academy",
-        description: course.title,
-        prefill: {
-          name: form.fullName.trim(),
-          email: form.emailAddress.trim(),
-          contact: form.mobileNumber.trim()
-        },
-        theme: {
-          color: "#10b981"
-        },
-        modal: {
-          ondismiss: () => {
-            toast.error("Payment cancelled. Your course remains locked.");
-          }
-        },
-        handler: async (response: { razorpay_payment_id: string; razorpay_order_id: string; razorpay_signature: string }) => {
-          const verify = await fetch("/api/orders/verify", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              orderId: data.order.id,
-              razorpayOrderId: response.razorpay_order_id,
-              razorpayPaymentId: response.razorpay_payment_id,
-              razorpaySignature: response.razorpay_signature,
-              mode: "razorpay"
-            })
-          });
-          const result = await verify.json();
-          if (!verify.ok) {
-            toast.error(result.error || "Payment verification failed.");
-            return;
-          }
-          toast.success("Payment successful. Enrollment complete.");
-          router.push(result.nextUrl || "/student/dashboard");
-          router.refresh();
-        }
-      };
-
-      const checkout = new razorpayConstructor(options);
-      checkout.open();
+      const cashfree = (window as unknown as { Cashfree: (options: { mode: "production" }) => { checkout: (options: { paymentSessionId: string; redirectTarget: string }) => Promise<void> } }).Cashfree;
+      await cashfree({ mode: "production" }).checkout({ paymentSessionId, redirectTarget: "_self" });
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Something went wrong.");
     } finally {
@@ -564,7 +564,7 @@ export function CheckoutFlow({
                 { label: "VISA", src: "/images/payment-visa.svg" },
                 { label: "UPI", src: "/images/payment-upi.svg" },
                 { label: "RuPay", src: "/images/payment-rupay.svg" },
-                { label: "Razorpay", src: "/images/payment-razorpay.svg" }
+                { label: "Cashfree", src: "/images/payment-cashfree.svg" }
               ].map((method) => (
                 <div key={method.label} className="flex h-9 items-center justify-center rounded-xl border border-slate-700 bg-white px-2 shadow-sm sm:h-10 sm:px-2.5">
                   <Image

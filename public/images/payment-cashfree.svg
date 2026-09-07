@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="180" height="52" viewBox="0 0 180 52" role="img" aria-labelledby="title">
+  <title id="title">Cashfree</title>
+  <rect width="180" height="52" rx="10" fill="#fff"/>
+  <path d="M25 13h22v8H33v10h14v8H25z" fill="#16a34a"/>
+  <path d="M52 13h8v26h-8z" fill="#0f172a"/>
+  <text x="70" y="33" fill="#0f172a" font-family="Arial,sans-serif" font-size="20" font-weight="700">Cashfree</text>
+</svg>

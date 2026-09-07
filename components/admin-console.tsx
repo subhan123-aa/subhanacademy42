@@ -1175,7 +1175,7 @@ export function AdminConsole({
                 ctaDescription: safeString(formData.get("ctaDescription")),
                 announcement: safeString(formData.get("announcement")),
                 paymentSettings: {
-                  provider: safeString(formData.get("paymentProvider"), "Razorpay"),
+                  provider: safeString(formData.get("paymentProvider"), "Cashfree"),
                   enabled: formData.get("paymentEnabled") === "on"
                 },
                 socialLinks: {
@@ -1302,7 +1302,7 @@ export function AdminConsole({
             <textarea name="announcement" defaultValue={siteConfig.announcement} className="min-h-24 rounded-2xl border border-slate-200 px-4 py-3" placeholder="Announcement text" />
           </div>
           <div className="grid gap-3 lg:grid-cols-3">
-            <input name="paymentProvider" defaultValue={siteConfig.paymentSettings?.provider ?? "Razorpay"} className="h-11 rounded-2xl border border-slate-200 px-4" placeholder="Payment provider" />
+            <input name="paymentProvider" defaultValue={siteConfig.paymentSettings?.provider ?? "Cashfree"} className="h-11 rounded-2xl border border-slate-200 px-4" placeholder="Payment provider" />
             <label className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700">
               <input name="paymentEnabled" type="checkbox" defaultChecked={siteConfig.paymentSettings?.enabled ?? true} />
               Payment enabled
@@ -1345,7 +1345,7 @@ export function AdminConsole({
         <div className="mt-5 grid gap-4 lg:grid-cols-2">
           <div className="rounded-[1.5rem] border border-slate-200 bg-slate-50 p-5">
             <p className="font-semibold text-slate-950">Current payment provider</p>
-            <p className="mt-2 text-sm text-slate-600">{siteConfig.paymentSettings?.provider ?? "Razorpay"}</p>
+            <p className="mt-2 text-sm text-slate-600">{siteConfig.paymentSettings?.provider ?? "Cashfree"}</p>
             <p className="mt-4 text-sm text-slate-500">
               Status: {siteConfig.paymentSettings?.enabled === false ? "Disabled" : "Enabled"}
             </p>

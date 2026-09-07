@@ -78,10 +78,8 @@ export const createOrderSchema = z.object({
 
 export const verifyPaymentSchema = z.object({
   orderId: z.string().min(1),
-  razorpayOrderId: z.string().min(1).optional(),
-  razorpayPaymentId: z.string().min(1).optional(),
-  razorpaySignature: z.string().min(1).optional(),
-  mode: z.enum(["razorpay", "mock"]).default("mock")
+  cashfreeOrderId: z.string().min(1).optional(),
+  cashfreePaymentId: z.string().min(1).optional()
 });
 
 export const progressSchema = z.object({

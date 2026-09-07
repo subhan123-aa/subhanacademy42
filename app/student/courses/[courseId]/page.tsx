@@ -16,7 +16,7 @@ export default async function StudentCoursePage({
   const hasPaid = Boolean(enrollment);
 
   return (
-    <DashboardShell title={course.title} subtitle={course.subtitle}>
+    <DashboardShell title={course.title} subtitle={course.subtitle} studentCourseHref={`/student/courses/${course.id}`}>
       <CoursePlayer course={course} enrollment={enrollment} canAccess={hasPaid} />
     </DashboardShell>
   );

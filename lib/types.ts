@@ -60,6 +60,8 @@ export type Enrollment = {
   orderId: string;
   enrolledAt: string;
   completedLessonIds: string[];
+  status?: "active";
+  paymentStatus?: "paid";
 };
 
 export type Order = {

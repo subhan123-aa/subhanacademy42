@@ -4,7 +4,7 @@ import { createOrderSchema } from "@/lib/schemas";
 import { getStore, saveStore } from "@/lib/data";
 import { getRequestUser } from "@/lib/request-auth";
 import { validateCoupon } from "@/lib/coupons";
-import { createRazorpayOrder } from "@/lib/razorpay";
+import { createCashfreeOrder, isCashfreeConfigured } from "@/lib/cashfree";
 
 export async function POST(req: NextRequest) {
   try {
@@ -31,10 +31,8 @@ export async function POST(req: NextRequest) {
 
     const subtotal = course.price;
     const total = Math.max(0, subtotal - discount);
-    const keyId = process.env.RAZORPAY_KEY_ID?.trim();
-    const keySecret = process.env.RAZORPAY_KEY_SECRET?.trim();
-    if (!keyId || !keySecret) {
-      return NextResponse.json({ error: "Razorpay is not configured in this environment." }, { status: 503 });
+    if (!isCashfreeConfigured()) {
+      return NextResponse.json({ error: "Cashfree is not configured in this environment." }, { status: 503 });
     }
 
     const order = {
@@ -56,27 +54,47 @@ export async function POST(req: NextRequest) {
       createdAt: new Date().toISOString()
     };
 
-    const razorpayOrder = await createRazorpayOrder({
-      amount: Math.round(total * 100),
-      currency: "INR",
-      receipt: order.id,
-      notes: {
-        userId: user.id,
-        courseId: course.id,
-        orderId: order.id,
-        emailAddress: body.emailAddress
+    // Local Cashfree callbacks must return to the active dev-server port. Use the
+    // configured public domain only for deployed production requests.
+    const requestOrigin = new URL(req.url).origin;
+    const configuredBaseUrl = process.env.NEXT_PUBLIC_BASE_URL?.trim();
+    if (process.env.NODE_ENV === "production") {
+      let parsedBaseUrl: URL | null = null;
+      try {
+        parsedBaseUrl = configuredBaseUrl ? new URL(configuredBaseUrl) : null;
+      } catch {
+        parsedBaseUrl = null;
       }
+
+      if (
+        !parsedBaseUrl ||
+        parsedBaseUrl.protocol !== "https:" ||
+        /localhost|127\.0\.0\.1|0\.0\.0\.0/i.test(parsedBaseUrl.hostname)
+      ) {
+        throw new Error("NEXT_PUBLIC_BASE_URL must be set to the public HTTPS production URL before accepting payments.");
+      }
+    }
+    const baseUrl = process.env.NODE_ENV === "production" ? new URL(configuredBaseUrl!).origin : requestOrigin;
+    const cashfreeOrder = await createCashfreeOrder({
+      orderId: order.id,
+      amount: total,
+      customerId: user.id,
+      customerName: body.fullName,
+      customerEmail: body.emailAddress,
+      customerPhone: body.mobileNumber,
+      returnUrl: `${baseUrl}/api/payments/cashfree/return?course=${encodeURIComponent(course.slug)}&order_ref=${encodeURIComponent(order.id)}&order_id={order_id}`,
+      notifyUrl: `${baseUrl}/api/webhooks/cashfree`
     });
 
-    order.providerOrderId = razorpayOrder.id;
+    order.providerOrderId = cashfreeOrder.orderId;
 
     const orders = await getStore("orders");
     orders.push(order);
     await saveStore("orders", orders);
 
     return NextResponse.json({
-      provider: "razorpay",
-      razorpayKeyId: keyId,
+      provider: "cashfree",
+      cashfreePaymentSessionId: cashfreeOrder.paymentSessionId,
       order,
       orderSummary: { subtotal, discount, total }
     });

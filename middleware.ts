@@ -1,7 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 
 const SESSION_COOKIE = "subhan_session";
-const SESSION_SECRET = process.env.SESSION_SECRET || "subhan-academy-dev-secret";
+
+function getSessionSecret() {
+  const secret = process.env.SESSION_SECRET?.trim();
+  if (secret) return secret;
+  if (process.env.NODE_ENV === "production") {
+    throw new Error("SESSION_SECRET must be set in production.");
+  }
+  return "subhan-academy-dev-secret";
+}
 
 function decodeBase64Url(value: string) {
   const normalized = value.replace(/-/g, "+").replace(/_/g, "/");
@@ -13,6 +21,7 @@ async function verifyToken(token?: string | null) {
   if (!token) return null;
   const [payload, signature] = token.split(".");
   if (!payload || !signature) return null;
+  const SESSION_SECRET = getSessionSecret();
   const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(SESSION_SECRET), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
   const expected = new Uint8Array(await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(payload)));
   const actual = decodeBase64Url(signature);
