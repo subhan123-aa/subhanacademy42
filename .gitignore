@@ -1,6 +1,9 @@
 .next
 node_modules
 .data
+tsconfig.tsbuildinfo
+dev-server.err.log
+dev-server.out.log
 .env.local
 .env
 dist
