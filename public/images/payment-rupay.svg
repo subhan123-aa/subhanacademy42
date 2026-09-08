@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 52" role="img" aria-labelledby="title">
+  <title id="title">RuPay</title>
+  <path fill="#087C45" d="M16 9h18.5c10.8 0 17.2 4.9 17.2 13.2 0 8.8-6.6 13.7-17.2 13.7h-9.8V43H16V9Zm8.7 19.5h9.2c5.8 0 8.9-1.9 8.9-6.2 0-4-3.1-5.9-8.9-5.9h-9.2v12.1Z"/>
+  <path fill="#087C45" d="M59 9h8.6v19.7c0 4.5 2.2 7 6.6 7s6.7-2.5 6.7-7V9h8.5v20c0 9.2-5.6 14.2-15.2 14.2S59 38.2 59 29V9Z"/>
+  <path fill="#087C45" d="M96 9h8.5v34H96V9Zm15.1 0h8.6v12.9L131.5 9h10.3l-13.7 16.5L142 43h-10.5l-12-14.7V43h-8.4V9Z"/>
+  <path fill="#F58220" d="M17 43h24.2v2.7H17V43Z"/>
+</svg>

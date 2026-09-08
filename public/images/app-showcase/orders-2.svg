@@ -1,0 +1,20 @@
+<svg width="1080" height="1920" viewBox="0 0 1080 1920" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1080" height="1920" fill="#F4FBF7"/>
+  <rect x="72" y="84" width="936" height="96" rx="30" fill="white"/>
+  <text x="112" y="144" fill="#0F172A" font-family="Inter, Arial, sans-serif" font-size="32" font-weight="700">Order tracking</text>
+  <rect x="72" y="236" width="936" height="290" rx="40" fill="#16A34A"/>
+  <text x="112" y="312" fill="white" font-family="Inter, Arial, sans-serif" font-size="44" font-weight="800">Out for delivery</text>
+  <text x="112" y="368" fill="#DCFCE7" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="500">Your SabjiHub order is arriving soon.</text>
+  <rect x="72" y="580" width="936" height="980" rx="42" fill="white"/>
+  <circle cx="180" cy="760" r="34" fill="#16A34A"/>
+  <circle cx="180" cy="940" r="34" fill="#16A34A"/>
+  <circle cx="180" cy="1120" r="34" fill="#BBF7D0"/>
+  <path d="M180 760V940" stroke="#16A34A" stroke-width="10" stroke-linecap="round"/>
+  <path d="M180 940V1120" stroke="#BBF7D0" stroke-width="10" stroke-linecap="round"/>
+  <text x="252" y="772" fill="#0F172A" font-family="Inter, Arial, sans-serif" font-size="30" font-weight="700">Order confirmed</text>
+  <text x="252" y="954" fill="#0F172A" font-family="Inter, Arial, sans-serif" font-size="30" font-weight="700">Packed at store</text>
+  <text x="252" y="1134" fill="#0F172A" font-family="Inter, Arial, sans-serif" font-size="30" font-weight="700">Rider on the way</text>
+  <text x="252" y="818" fill="#64748B" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="500">2 mins ago</text>
+  <text x="252" y="1000" fill="#64748B" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="500">10 mins ago</text>
+  <text x="252" y="1180" fill="#64748B" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="500">Live status update</text>
+</svg>

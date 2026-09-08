@@ -1,0 +1,27 @@
+<svg width="1080" height="1920" viewBox="0 0 1080 1920" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1080" height="1920" fill="#F6FCF8"/>
+  <rect x="72" y="84" width="320" height="84" rx="28" fill="#16A34A"/>
+  <text x="112" y="136" fill="white" font-family="Inter, Arial, sans-serif" font-size="32" font-weight="700">Categories</text>
+  <rect x="72" y="220" width="936" height="250" rx="42" fill="white"/>
+  <text x="112" y="290" fill="#0F172A" font-family="Inter, Arial, sans-serif" font-size="34" font-weight="700">Tap a category</text>
+  <text x="112" y="338" fill="#64748B" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="500">Browse products by fresh sections.</text>
+  <g transform="translate(108 514)">
+    <rect width="240" height="240" rx="36" fill="#F0FBF4"/>
+    <text x="36" y="120" fill="#16A34A" font-family="Inter, Arial, sans-serif" font-size="32" font-weight="700">Veg</text>
+  </g>
+  <g transform="translate(420 514)">
+    <rect width="240" height="240" rx="36" fill="#ECFDF3"/>
+    <text x="36" y="120" fill="#16A34A" font-family="Inter, Arial, sans-serif" font-size="32" font-weight="700">Fruit</text>
+  </g>
+  <g transform="translate(732 514)">
+    <rect width="240" height="240" rx="36" fill="#F0FBF4"/>
+    <text x="36" y="120" fill="#16A34A" font-family="Inter, Arial, sans-serif" font-size="32" font-weight="700">Dairy</text>
+  </g>
+  <rect x="72" y="818" width="936" height="650" rx="42" fill="white"/>
+  <text x="112" y="882" fill="#0F172A" font-family="Inter, Arial, sans-serif" font-size="34" font-weight="700">Product details</text>
+  <rect x="108" y="930" width="864" height="180" rx="32" fill="#F8FCF9"/>
+  <rect x="136" y="958" width="124" height="124" rx="28" fill="#BBF7D0"/>
+  <text x="292" y="998" fill="#0F172A" font-family="Inter, Arial, sans-serif" font-size="30" font-weight="700">Organic tomatoes</text>
+  <text x="292" y="1044" fill="#64748B" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="500">500g pack • Best seller</text>
+  <text x="292" y="1090" fill="#16A34A" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="800">₹44</text>
+</svg>
