@@ -6,7 +6,7 @@ import { getRequestUser } from "@/lib/request-auth";
 import { validateCoupon } from "@/lib/coupons";
 import { createCashfreeOrder, isCashfreeConfigured } from "@/lib/cashfree";
 
-const PRODUCTION_BASE_URL = "https://subhanacademy42-main.vercel.app";
+const PRODUCTION_BASE_URL = "https://subhanacademy42.vercel.app";
 
 export async function POST(req: NextRequest) {
   try {

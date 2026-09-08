@@ -6,8 +6,8 @@ const CASHFREE_API_VERSION = "2025-01-01";
 const CASHFREE_API_BASE_URL = "https://api.cashfree.com/pg";
 
 function getCashfreeConfig() {
-  const clientId = process.env.CASHFREE_CLIENT_ID?.trim();
-  const clientSecret = process.env.CASHFREE_CLIENT_SECRET?.trim();
+  const clientId = (process.env.CASHFREE_APP_ID || process.env.CASHFREE_CLIENT_ID)?.trim();
+  const clientSecret = (process.env.CASHFREE_SECRET_KEY || process.env.CASHFREE_CLIENT_SECRET)?.trim();
   const environment = process.env.CASHFREE_ENVIRONMENT?.trim().toLowerCase();
 
   return {
@@ -108,7 +108,7 @@ export async function isCashfreeOrderPaid(orderId: string) {
 }
 
 export function verifyCashfreeWebhookSignature(rawBody: string, signature: string | null, timestamp: string | null) {
-  const secret = process.env.CASHFREE_CLIENT_SECRET?.trim();
+  const secret = (process.env.CASHFREE_SECRET_KEY || process.env.CASHFREE_CLIENT_SECRET)?.trim();
   if (!secret || !signature || !timestamp) return false;
   const expected = crypto.createHmac("sha256", secret).update(`${timestamp}${rawBody}`).digest("base64");
   if (expected.length !== signature.length) return false;
