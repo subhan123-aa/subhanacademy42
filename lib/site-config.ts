@@ -2,7 +2,9 @@ import { promises as fs } from "fs";
 import path from "path";
 import type { SiteConfig } from "@/lib/types";
 
-const dataDir = path.join(process.cwd(), ".data");
+const dataDir = process.env.VERCEL || process.env.NODE_ENV === "production"
+  ? path.join("/tmp", ".data")
+  : path.join(process.cwd(), ".data");
 const fileName = "site-config.json";
 
 const defaultConfig: SiteConfig = {
@@ -19,7 +21,11 @@ const defaultConfig: SiteConfig = {
 };
 
 async function ensureDataDir() {
-  await fs.mkdir(dataDir, { recursive: true });
+  try {
+    await fs.mkdir(dataDir, { recursive: true });
+  } catch {
+    // Ignore error if directory exists or restricted
+  }
 }
 
 export async function getSiteConfig(): Promise<SiteConfig> {
@@ -33,8 +39,12 @@ export async function getSiteConfig(): Promise<SiteConfig> {
 }
 
 export async function saveSiteConfig(config: SiteConfig) {
-  await ensureDataDir();
-  await fs.writeFile(path.join(dataDir, fileName), JSON.stringify(config, null, 2), "utf8");
+  try {
+    await ensureDataDir();
+    await fs.writeFile(path.join(dataDir, fileName), JSON.stringify(config, null, 2), "utf8");
+  } catch (err) {
+    console.warn("[lib/site-config] Warning: Could not write site config:", err);
+  }
 }
 
 export function getDefaultSiteConfig() {

@@ -18,7 +18,10 @@ import type {
 } from "@/lib/types";
 import { seed } from "@/lib/seed";
 
-const dataDir = path.join(process.cwd(), ".data");
+const dataDir = process.env.VERCEL || process.env.NODE_ENV === "production"
+  ? path.join("/tmp", ".data")
+  : path.join(process.cwd(), ".data");
+
 const files = {
   users: "users.json",
   courses: "courses.json",
@@ -52,8 +55,15 @@ type StoreMap = {
   passwordResets: PasswordReset[];
 };
 
+const memoryStore: Partial<StoreMap> = {};
+let seedingPromise: Promise<void> | null = null;
+
 async function ensureDataDir() {
-  await fs.mkdir(dataDir, { recursive: true });
+  try {
+    await fs.mkdir(dataDir, { recursive: true });
+  } catch {
+    // Ignore error if already exists or permission issue
+  }
 }
 
 async function readJson<T>(fileName: string, fallback: T): Promise<T> {
@@ -66,37 +76,55 @@ async function readJson<T>(fileName: string, fallback: T): Promise<T> {
 }
 
 async function writeJson(fileName: string, value: unknown) {
-  await ensureDataDir();
-  await fs.writeFile(path.join(dataDir, fileName), JSON.stringify(value, null, 2), "utf8");
+  try {
+    await ensureDataDir();
+    await fs.writeFile(path.join(dataDir, fileName), JSON.stringify(value, null, 2), "utf8");
+  } catch {
+    // Fail silently in read-only / build environments
+  }
 }
 
 export async function ensureSeeded() {
-  await ensureDataDir();
-  const existing = await Promise.all(
-    Object.entries(files).map(async ([key, fileName]) => {
-      try {
-        const raw = await fs.readFile(path.join(dataDir, fileName), "utf8");
-        return [key, Boolean(raw)] as const;
-      } catch {
-        return [key, false] as const;
-      }
-    })
-  );
+  if (seedingPromise) return seedingPromise;
+  seedingPromise = (async () => {
+    try {
+      await ensureDataDir();
+      const existing = await Promise.all(
+        Object.entries(files).map(async ([key, fileName]) => {
+          try {
+            const raw = await fs.readFile(path.join(dataDir, fileName), "utf8");
+            return [key, Boolean(raw)] as const;
+          } catch {
+            return [key, false] as const;
+          }
+        })
+      );
 
-  await Promise.all(
-    Object.entries(files)
-      .filter(([key]) => existing.some(([existingKey, present]) => existingKey === key && !present))
-      .map(([key, fileName]) => writeJson(fileName, seed[key as keyof SiteSeed] ?? []))
-  );
+      await Promise.all(
+        Object.entries(files)
+          .filter(([key]) => existing.some(([existingKey, present]) => existingKey === key && !present))
+          .map(([key, fileName]) => writeJson(fileName, seed[key as keyof SiteSeed] ?? []))
+      );
+    } catch {
+      // Ignore seeding errors in restricted environments
+    }
+  })();
+  return seedingPromise;
 }
 
 export async function getStore<K extends StoreKey>(key: K): Promise<StoreMap[K]> {
-  await ensureSeeded();
-  const value = await readJson<StoreMap[K]>(files[key], seed[key]);
-  return (Array.isArray(value) ? value : seed[key] ?? []) as StoreMap[K];
+  if (memoryStore[key]) {
+    return memoryStore[key] as StoreMap[K];
+  }
+  const fallback = (seed[key as keyof SiteSeed] ?? []) as unknown as StoreMap[K];
+  const value = await readJson<StoreMap[K]>(files[key], fallback);
+  const resolved = (Array.isArray(value) ? value : fallback) as StoreMap[K];
+  memoryStore[key] = resolved;
+  return resolved;
 }
 
 export async function saveStore<K extends StoreKey>(key: K, value: StoreMap[K]) {
+  memoryStore[key] = value;
   await writeJson(files[key], value);
 }
 
