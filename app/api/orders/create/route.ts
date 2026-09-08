@@ -6,6 +6,8 @@ import { getRequestUser } from "@/lib/request-auth";
 import { validateCoupon } from "@/lib/coupons";
 import { createCashfreeOrder, isCashfreeConfigured } from "@/lib/cashfree";
 
+const PRODUCTION_BASE_URL = "https://subhanacademy42-main.vercel.app";
+
 export async function POST(req: NextRequest) {
   try {
     const user = await getRequestUser(req, true);
@@ -54,14 +56,15 @@ export async function POST(req: NextRequest) {
       createdAt: new Date().toISOString()
     };
 
-    // Local Cashfree callbacks must return to the active dev-server port. Use the
-    // configured public domain only for deployed production requests.
+    // Cashfree callbacks use the canonical Vercel domain in production and the
+    // active dev-server origin locally.
     const requestOrigin = new URL(req.url).origin;
     const configuredBaseUrl = process.env.NEXT_PUBLIC_BASE_URL?.trim();
     if (process.env.NODE_ENV === "production") {
+      const productionBaseUrl = configuredBaseUrl || PRODUCTION_BASE_URL;
       let parsedBaseUrl: URL | null = null;
       try {
-        parsedBaseUrl = configuredBaseUrl ? new URL(configuredBaseUrl) : null;
+        parsedBaseUrl = new URL(productionBaseUrl);
       } catch {
         parsedBaseUrl = null;
       }
@@ -69,12 +72,12 @@ export async function POST(req: NextRequest) {
       if (
         !parsedBaseUrl ||
         parsedBaseUrl.protocol !== "https:" ||
-        /localhost|127\.0\.0\.1|0\.0\.0\.0/i.test(parsedBaseUrl.hostname)
+        parsedBaseUrl.origin !== PRODUCTION_BASE_URL
       ) {
-        throw new Error("NEXT_PUBLIC_BASE_URL must be set to the public HTTPS production URL before accepting payments.");
+        throw new Error(`NEXT_PUBLIC_BASE_URL must be ${PRODUCTION_BASE_URL} in production.`);
       }
     }
-    const baseUrl = process.env.NODE_ENV === "production" ? new URL(configuredBaseUrl!).origin : requestOrigin;
+    const baseUrl = process.env.NODE_ENV === "production" ? PRODUCTION_BASE_URL : requestOrigin;
     const cashfreeOrder = await createCashfreeOrder({
       orderId: order.id,
       amount: total,
