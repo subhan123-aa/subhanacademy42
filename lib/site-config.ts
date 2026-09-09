@@ -2,9 +2,11 @@ import { promises as fs } from "fs";
 import path from "path";
 import type { SiteConfig } from "@/lib/types";
 
-const dataDir = process.env.VERCEL || process.env.NODE_ENV === "production"
+const primaryDataDir = process.env.VERCEL || process.env.NODE_ENV === "production"
   ? path.join("/tmp", ".data")
   : path.join(process.cwd(), ".data");
+
+const bundledDataDir = path.join(process.cwd(), ".data");
 const fileName = "site-config.json";
 
 const defaultConfig: SiteConfig = {
@@ -22,7 +24,7 @@ const defaultConfig: SiteConfig = {
 
 async function ensureDataDir() {
   try {
-    await fs.mkdir(dataDir, { recursive: true });
+    await fs.mkdir(primaryDataDir, { recursive: true });
   } catch {
     // Ignore error if directory exists or restricted
   }
@@ -31,19 +33,36 @@ async function ensureDataDir() {
 export async function getSiteConfig(): Promise<SiteConfig> {
   await ensureDataDir();
   try {
-    const raw = await fs.readFile(path.join(dataDir, fileName), "utf8");
+    const raw = await fs.readFile(path.join(primaryDataDir, fileName), "utf8");
     return JSON.parse(raw) as SiteConfig;
   } catch {
+    if (primaryDataDir !== bundledDataDir) {
+      try {
+        const raw = await fs.readFile(path.join(bundledDataDir, fileName), "utf8");
+        return JSON.parse(raw) as SiteConfig;
+      } catch {
+        // Fallback below
+      }
+    }
     return defaultConfig;
   }
 }
 
 export async function saveSiteConfig(config: SiteConfig) {
+  const content = JSON.stringify(config, null, 2);
   try {
     await ensureDataDir();
-    await fs.writeFile(path.join(dataDir, fileName), JSON.stringify(config, null, 2), "utf8");
+    await fs.writeFile(path.join(primaryDataDir, fileName), content, "utf8");
   } catch (err) {
-    console.warn("[lib/site-config] Warning: Could not write site config:", err);
+    console.warn("[lib/site-config] Warning: Could not write site config to primary dir:", err);
+  }
+  if (primaryDataDir !== bundledDataDir) {
+    try {
+      await fs.mkdir(bundledDataDir, { recursive: true });
+      await fs.writeFile(path.join(bundledDataDir, fileName), content, "utf8");
+    } catch {
+      // Ignore if bundled dir is read-only
+    }
   }
 }
 

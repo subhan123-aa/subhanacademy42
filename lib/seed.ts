@@ -26,7 +26,7 @@ export const seed: SiteSeed = {
       slug: "sabjihub-blueprint",
       title: "SabjiHub Blueprint - From Idea to Launch",
       subtitle: "A practical course on building and launching a local grocery delivery platform.",
-      price: 499,
+      price: 5,
       oldPrice: 999,
       showDiscountDisplay: true,
       thumbnail: "/images/course-thumb.svg",

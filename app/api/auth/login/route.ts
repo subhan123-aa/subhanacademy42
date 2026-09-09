@@ -17,11 +17,13 @@ export async function POST(req: NextRequest) {
     const nextUrl = user.role === "admin"
       ? safeNext?.startsWith("/admin") ? safeNext : "/admin"
       : safeNext?.startsWith("/student") ? safeNext : "/student/dashboard";
-    const response = NextResponse.json({ message: "Logged in successfully.", nextUrl });
-    response.cookies.set("subhan_session", signSession(user), {
+    const token = signSession(user);
+    const isHttps = req.nextUrl.protocol === "https:" || req.headers.get("x-forwarded-proto") === "https";
+    const response = NextResponse.json({ message: "Logged in successfully.", nextUrl, token });
+    response.cookies.set("subhan_session", token, {
       httpOnly: true,
       sameSite: "lax",
-      secure: process.env.NODE_ENV === "production",
+      secure: isHttps,
       path: "/",
       maxAge: 60 * 60 * 24 * 7
     });

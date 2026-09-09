@@ -1,0 +1,12 @@
+[
+  {
+    "id": "coupon-launch",
+    "code": "LAUNCH50",
+    "type": "percent",
+    "value": 50,
+    "expiresAt": "2026-10-23T09:59:34.717Z",
+    "usageLimit": 100,
+    "usedCount": 0,
+    "active": true
+  }
+]

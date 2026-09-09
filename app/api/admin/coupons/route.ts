@@ -1,5 +1,6 @@
 import crypto from "crypto";
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { couponSchema } from "@/lib/schemas";
 import { getStore, saveStore } from "@/lib/data";
 import { requireAdmin } from "@/lib/request-auth";
@@ -29,6 +30,13 @@ export async function POST(req: NextRequest) {
       coupons.push(nextCoupon);
     }
     await saveStore("coupons", coupons);
+    try {
+      revalidatePath("/", "layout");
+      revalidatePath("/admin");
+      revalidatePath("/checkout");
+    } catch {
+      // ignore
+    }
     return NextResponse.json({ message: "Coupon saved.", coupon: nextCoupon });
   } catch (error) {
     return NextResponse.json({ error: error instanceof Error ? error.message : "Invalid request." }, { status: 400 });

@@ -1,0 +1,42 @@
+[
+  {
+    "id": "appshot-1",
+    "title": "Home screen",
+    "category": "customer-app",
+    "imageUrl": "/images/app-showcase/customer-home-1.svg",
+    "order": 1,
+    "caption": "A clean customer home screen with featured collections and quick navigation.",
+    "createdAt": "2026-09-08T09:59:34.717Z",
+    "updatedAt": "2026-09-08T09:59:34.717Z"
+  },
+  {
+    "id": "appshot-2",
+    "title": "Browse products",
+    "category": "customer-app",
+    "imageUrl": "/images/app-showcase/customer-home-2.svg",
+    "order": 2,
+    "caption": "Discover offers and fresh items with a simple, mobile-first layout.",
+    "createdAt": "2026-09-08T09:59:34.717Z",
+    "updatedAt": "2026-09-08T09:59:34.717Z"
+  },
+  {
+    "id": "appshot-3",
+    "title": "Categories and products",
+    "category": "customer-app",
+    "imageUrl": "/images/app-showcase/products-1.svg",
+    "order": 3,
+    "caption": "Shoppers can move from category browsing into product details quickly.",
+    "createdAt": "2026-09-08T09:59:34.717Z",
+    "updatedAt": "2026-09-08T09:59:34.717Z"
+  },
+  {
+    "id": "appshot-4",
+    "title": "Cart and checkout",
+    "category": "customer-app",
+    "imageUrl": "/images/app-showcase/orders-1.svg",
+    "order": 4,
+    "caption": "A smooth cart and checkout flow designed for quick repeat orders.",
+    "createdAt": "2026-09-08T09:59:34.717Z",
+    "updatedAt": "2026-09-08T09:59:34.717Z"
+  }
+]

@@ -23,11 +23,13 @@ export async function POST(req: NextRequest) {
     await saveStore("users", users);
     await saveStore("passwordResets", resets);
 
-    const response = NextResponse.json({ message: "Password updated successfully.", nextUrl: user.role === "admin" ? "/admin" : "/student/dashboard" });
-    response.cookies.set("subhan_session", signSession(user), {
+    const token = signSession(user);
+    const isHttps = req.nextUrl.protocol === "https:" || req.headers.get("x-forwarded-proto") === "https";
+    const response = NextResponse.json({ message: "Password updated successfully.", nextUrl: user.role === "admin" ? "/admin" : "/student/dashboard", token });
+    response.cookies.set("subhan_session", token, {
       httpOnly: true,
       sameSite: "lax",
-      secure: process.env.NODE_ENV === "production",
+      secure: isHttps,
       path: "/",
       maxAge: 60 * 60 * 24 * 7
     });

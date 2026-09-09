@@ -1,5 +1,6 @@
 import crypto from "crypto";
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { getStore, saveStore } from "@/lib/data";
 import { requireAdmin } from "@/lib/request-auth";
 
@@ -75,6 +76,12 @@ export async function POST(req: NextRequest) {
     };
     const nextScreenshots = existing ? screenshots.map((item) => (item.id === id ? nextItem : item)) : [...screenshots, nextItem];
     await saveStore("appShowcaseScreenshots", nextScreenshots);
+    try {
+      revalidatePath("/", "layout");
+      revalidatePath("/admin");
+    } catch {
+      // ignore
+    }
     return NextResponse.json({ message: existing ? "Screenshot updated." : "Screenshot created.", screenshot: nextItem });
   } catch (error) {
     return NextResponse.json({ error: error instanceof Error ? error.message : "Invalid request." }, { status: 400 });
@@ -100,6 +107,12 @@ export async function PUT(req: NextRequest) {
       order: orderedIds.length + index + 1
     }));
     await saveStore("appShowcaseScreenshots", [...reordered, ...remainder]);
+    try {
+      revalidatePath("/", "layout");
+      revalidatePath("/admin");
+    } catch {
+      // ignore
+    }
     return NextResponse.json({ message: "Screenshot order updated." });
   } catch (error) {
     return NextResponse.json({ error: error instanceof Error ? error.message : "Invalid request." }, { status: 400 });

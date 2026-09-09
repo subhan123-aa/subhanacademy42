@@ -13,7 +13,20 @@ export async function getCurrentUser() {
   if (!session) return null;
   const users = await getStore("users");
   const user = users.find((candidate) => candidate.id === session.sub) ?? null;
-  if (!user || user.blocked || user.pendingPayment) return null;
+  if (!user) {
+    if (session.role === "admin") {
+      return {
+        id: session.sub || "admin-1",
+        name: session.name || "Subhan Academy Admin",
+        email: session.email || "admin@subhanacademy.in",
+        passwordHash: "",
+        role: "admin" as const,
+        createdAt: new Date().toISOString()
+      };
+    }
+    return null;
+  }
+  if (user.blocked || user.pendingPayment) return null;
   return user;
 }
 

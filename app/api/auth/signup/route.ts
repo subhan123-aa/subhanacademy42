@@ -26,11 +26,13 @@ export async function POST(req: NextRequest) {
     users.push(user);
     await saveStore("users", users);
 
-    const response = NextResponse.json({ message: "Account created successfully.", nextUrl: "/student/dashboard" });
-    response.cookies.set("subhan_session", signSession(user), {
+    const token = signSession(user);
+    const isHttps = req.nextUrl.protocol === "https:" || req.headers.get("x-forwarded-proto") === "https";
+    const response = NextResponse.json({ message: "Account created successfully.", nextUrl: "/student/dashboard", token });
+    response.cookies.set("subhan_session", token, {
       httpOnly: true,
       sameSite: "lax",
-      secure: process.env.NODE_ENV === "production",
+      secure: isHttps,
       path: "/",
       maxAge: 60 * 60 * 24 * 7
     });

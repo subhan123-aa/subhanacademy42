@@ -1,0 +1,18 @@
+[
+  {
+    "id": "test-1",
+    "name": "Nisha Sharma",
+    "location": "Indore",
+    "rating": 5,
+    "review": "The course feels practical, clear, and grounded in a real business journey.",
+    "avatar": "/images/avatar-1.svg"
+  },
+  {
+    "id": "test-2",
+    "name": "Mohit Verma",
+    "location": "Surat",
+    "rating": 5,
+    "review": "I like that the modules focus on launch steps instead of generic theory.",
+    "avatar": "/images/avatar-2.svg"
+  }
+]

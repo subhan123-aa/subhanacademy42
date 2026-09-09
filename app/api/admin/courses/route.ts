@@ -1,5 +1,6 @@
 import crypto from "crypto";
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { adminCourseSchema } from "@/lib/schemas";
 import { getStore, saveStore } from "@/lib/data";
 import { requireAdmin } from "@/lib/request-auth";
@@ -53,6 +54,16 @@ export async function POST(req: NextRequest) {
     if (existingIndex >= 0) courses[existingIndex] = nextCourse;
     else courses.push(nextCourse);
     await saveStore("courses", courses);
+
+    try {
+      revalidatePath("/", "layout");
+      revalidatePath("/admin");
+      revalidatePath("/courses");
+      revalidatePath(`/courses/${nextCourse.slug}`);
+      revalidatePath("/checkout");
+    } catch {
+      // ignore in non-request contexts
+    }
 
     return NextResponse.json({ message: "Course saved.", course: nextCourse });
   } catch (error) {

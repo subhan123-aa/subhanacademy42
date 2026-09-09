@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { adminOrderSchema } from "@/lib/schemas";
 import { getStore, saveStore } from "@/lib/data";
 import { requireAdmin } from "@/lib/request-auth";
@@ -24,6 +25,11 @@ export async function PATCH(req: NextRequest) {
       order.refundStatus = body.refundStatus;
     }
     await saveStore("orders", orders);
+    try {
+      revalidatePath("/admin");
+    } catch {
+      // ignore
+    }
     return NextResponse.json({ message: "Order updated.", order });
   } catch (error) {
     return NextResponse.json({ error: error instanceof Error ? error.message : "Invalid request." }, { status: 400 });

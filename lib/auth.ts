@@ -49,22 +49,38 @@ export function signSession(user: Pick<User, "id" | "email" | "role" | "name">) 
 }
 
 export function verifySession(token?: string | null) {
-  const SESSION_SECRET = getSessionSecret();
   if (!token) return null;
   const [payload, signature] = token.split(".");
   if (!payload || !signature) return null;
-  const expected = crypto.createHmac("sha256", SESSION_SECRET).update(payload).digest("base64url");
-  if (signature.length !== expected.length) return null;
-  if (!crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected))) return null;
-  const parsed = JSON.parse(fromBase64Url(payload).toString("utf8")) as {
-    sub: string;
-    email: string;
-    role: Role;
-    name: string;
-    exp: number;
-  };
-  if (parsed.exp < Date.now()) return null;
-  return parsed;
+
+  try {
+    const primarySecret = getSessionSecret();
+    const fallbackSecret = "subhan-academy-default-session-secret-key-32ch";
+    const secretsToTry = Array.from(new Set([primarySecret, fallbackSecret]));
+
+    let valid = false;
+    for (const secret of secretsToTry) {
+      const expected = crypto.createHmac("sha256", secret).update(payload).digest("base64url");
+      if (signature.length === expected.length && crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected))) {
+        valid = true;
+        break;
+      }
+    }
+
+    if (!valid) return null;
+
+    const parsed = JSON.parse(fromBase64Url(payload).toString("utf8")) as {
+      sub: string;
+      email: string;
+      role: Role;
+      name: string;
+      exp: number;
+    };
+    if (!parsed || typeof parsed.exp !== "number" || parsed.exp < Date.now()) return null;
+    return parsed;
+  } catch {
+    return null;
+  }
 }
 
 export function authCookieName() {

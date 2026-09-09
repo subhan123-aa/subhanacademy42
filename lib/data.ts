@@ -18,9 +18,11 @@ import type {
 } from "@/lib/types";
 import { seed } from "@/lib/seed";
 
-const dataDir = process.env.VERCEL || process.env.NODE_ENV === "production"
+const primaryDataDir = process.env.VERCEL || process.env.NODE_ENV === "production"
   ? path.join("/tmp", ".data")
   : path.join(process.cwd(), ".data");
+
+const bundledDataDir = path.join(process.cwd(), ".data");
 
 const files = {
   users: "users.json",
@@ -60,7 +62,7 @@ let seedingPromise: Promise<void> | null = null;
 
 async function ensureDataDir() {
   try {
-    await fs.mkdir(dataDir, { recursive: true });
+    await fs.mkdir(primaryDataDir, { recursive: true });
   } catch {
     // Ignore error if already exists or permission issue
   }
@@ -68,19 +70,36 @@ async function ensureDataDir() {
 
 async function readJson<T>(fileName: string, fallback: T): Promise<T> {
   try {
-    const raw = await fs.readFile(path.join(dataDir, fileName), "utf8");
+    const raw = await fs.readFile(path.join(primaryDataDir, fileName), "utf8");
     return JSON.parse(raw) as T;
   } catch {
+    if (primaryDataDir !== bundledDataDir) {
+      try {
+        const raw = await fs.readFile(path.join(bundledDataDir, fileName), "utf8");
+        return JSON.parse(raw) as T;
+      } catch {
+        // Fallback below
+      }
+    }
     return fallback;
   }
 }
 
 async function writeJson(fileName: string, value: unknown) {
+  const content = JSON.stringify(value, null, 2);
   try {
     await ensureDataDir();
-    await fs.writeFile(path.join(dataDir, fileName), JSON.stringify(value, null, 2), "utf8");
+    await fs.writeFile(path.join(primaryDataDir, fileName), content, "utf8");
   } catch {
     // Fail silently in read-only / build environments
+  }
+  if (primaryDataDir !== bundledDataDir) {
+    try {
+      await fs.mkdir(bundledDataDir, { recursive: true });
+      await fs.writeFile(path.join(bundledDataDir, fileName), content, "utf8");
+    } catch {
+      // Ignore if bundled directory is read-only in serverless
+    }
   }
 }
 
@@ -92,7 +111,7 @@ export async function ensureSeeded() {
       const existing = await Promise.all(
         Object.entries(files).map(async ([key, fileName]) => {
           try {
-            const raw = await fs.readFile(path.join(dataDir, fileName), "utf8");
+            const raw = await fs.readFile(path.join(primaryDataDir, fileName), "utf8");
             return [key, Boolean(raw)] as const;
           } catch {
             return [key, false] as const;

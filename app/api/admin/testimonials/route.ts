@@ -1,5 +1,6 @@
 import crypto from "crypto";
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { testimonialSchema } from "@/lib/schemas";
 import { getStore, saveStore } from "@/lib/data";
 import { requireAdmin } from "@/lib/request-auth";
@@ -20,6 +21,12 @@ export async function POST(req: NextRequest) {
     if (existingIndex >= 0) testimonials[existingIndex] = nextTestimonial;
     else testimonials.push(nextTestimonial);
     await saveStore("testimonials", testimonials);
+    try {
+      revalidatePath("/", "layout");
+      revalidatePath("/admin");
+    } catch {
+      // ignore
+    }
     return NextResponse.json({ message: "Testimonial saved.", testimonial: nextTestimonial });
   } catch (error) {
     return NextResponse.json({ error: error instanceof Error ? error.message : "Invalid request." }, { status: 400 });

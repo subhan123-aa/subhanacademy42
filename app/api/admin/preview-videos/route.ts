@@ -1,5 +1,6 @@
 import crypto from "crypto";
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { getStore, saveStore } from "@/lib/data";
 import { requireAdmin } from "@/lib/request-auth";
 import { getYouTubeEmbedUrl } from "@/lib/youtube";
@@ -43,6 +44,12 @@ export async function POST(req: NextRequest) {
         ? previewVideos.map((video) => video.id === id ? nextVideo : video)
         : [...previewVideos, nextVideo];
     await saveStore("previewVideos", nextVideos);
+    try {
+      revalidatePath("/", "layout");
+      revalidatePath("/admin");
+    } catch {
+      // ignore
+    }
     return NextResponse.json({ message: existing ? "Preview video updated." : "Preview video created." });
   } catch (error) {
     return NextResponse.json({ error: error instanceof Error ? error.message : "Invalid request." }, { status: 400 });

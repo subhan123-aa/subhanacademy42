@@ -1,0 +1,29 @@
+[
+  {
+    "id": "blog-1",
+    "slug": "how-to-start-a-local-grocery-delivery-business",
+    "title": "How to Start a Local Grocery Delivery Business",
+    "excerpt": "A practical starting guide for local entrepreneurs.",
+    "content": "Start small, validate demand, map routes, and build a reliable customer experience.",
+    "publishedAt": "2026-09-08T09:59:34.717Z",
+    "author": "Subhan Academy"
+  },
+  {
+    "id": "blog-2",
+    "slug": "how-to-build-a-grocery-delivery-app",
+    "title": "How to Build a Grocery Delivery App",
+    "excerpt": "What the product stack and workflow should include.",
+    "content": "Focus on order flow, inventory, delivery status, and admin visibility.",
+    "publishedAt": "2026-09-08T09:59:34.717Z",
+    "author": "Subhan Academy"
+  },
+  {
+    "id": "blog-3",
+    "slug": "how-to-get-your-first-100-customers",
+    "title": "How to Get Your First 100 Customers",
+    "excerpt": "Simple local tactics that compound fast.",
+    "content": "Use WhatsApp, referrals, local posters, reels, and launch offers.",
+    "publishedAt": "2026-09-08T09:59:34.717Z",
+    "author": "Subhan Academy"
+  }
+]

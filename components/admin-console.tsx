@@ -49,9 +49,20 @@ import { cn, formatCurrency, formatDate } from "@/lib/utils";
 import { getCoursePricing } from "@/lib/pricing";
 
 async function api(url: string, method: string, body?: unknown) {
+  const headers: Record<string, string> = { "Content-Type": "application/json" };
+
+  if (typeof document !== "undefined") {
+    const match = document.cookie.match(/(?:^|;\s*)subhan_session=([^;]+)/);
+    const token = match ? decodeURIComponent(match[1]) : (typeof localStorage !== "undefined" ? localStorage.getItem("subhan_session") : null);
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+  }
+
   const response = await fetch(url, {
     method,
-    headers: { "Content-Type": "application/json" },
+    headers,
+    credentials: "include",
     body: body ? JSON.stringify(body) : undefined
   });
   const data = await response.json().catch(() => ({}));

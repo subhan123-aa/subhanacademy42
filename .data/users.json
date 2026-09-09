@@ -1,0 +1,18 @@
+[
+  {
+    "id": "admin-1",
+    "name": "Subhan Academy Admin",
+    "email": "admin@subhanacademy.in",
+    "passwordHash": "889e6396ad4eb1efbacd5dd88bbdcc42:60706b70d6fb6101e32529fa042f4ddf4f6c1d18385226b5a04187d5cb5557eef4696be238294cce11bcd11c4c8b58913be846accb0c7a304c5594a5e8934d56",
+    "role": "admin",
+    "createdAt": "2026-09-08T09:59:34.683Z"
+  },
+  {
+    "id": "student-1",
+    "name": "Aarav Khan",
+    "email": "student@subhanacademy.in",
+    "passwordHash": "b3d09b0db1edb7f87d53cd719464b348:37da355f07434e18a86bf8363dd494fd1d84dfe57860f950b91ac28270c9a6f1d8e017a79303d01a11ddb2cd37ffb1f4e7633fd53f2eb03ce5bcf15bdab3ade5",
+    "role": "student",
+    "createdAt": "2026-09-08T09:59:34.717Z"
+  }
+]

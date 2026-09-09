@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { requireAdmin } from "@/lib/request-auth";
 import { saveSiteConfig } from "@/lib/site-config";
 import { siteConfigSchema } from "@/lib/schemas";
@@ -14,6 +15,12 @@ export async function POST(req: NextRequest) {
   try {
     const config = siteConfigSchema.parse(await req.json());
     await saveSiteConfig(config);
+    try {
+      revalidatePath("/", "layout");
+      revalidatePath("/admin");
+    } catch {
+      // ignore
+    }
     return NextResponse.json({ message: "Homepage content updated." });
   } catch (error) {
     return NextResponse.json({ error: error instanceof Error ? error.message : "Invalid request." }, { status: 400 });
