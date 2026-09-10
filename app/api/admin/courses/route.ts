@@ -56,7 +56,6 @@ export async function POST(req: NextRequest) {
     await saveStore("courses", courses);
 
     try {
-      revalidatePath("/", "layout");
       revalidatePath("/admin");
       revalidatePath("/courses");
       revalidatePath(`/courses/${nextCourse.slug}`);

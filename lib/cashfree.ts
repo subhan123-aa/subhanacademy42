@@ -169,9 +169,22 @@ export async function completeCashfreeOrder(order: Order, paymentId?: string | n
   await saveStore("orders", orders);
 
   const users = await getStore("users");
-  const account = users.find((item) => item.id === order.userId);
-  if (account?.pendingPayment) {
+  const account = users.find((item) => item.id === order.userId || item.email.toLowerCase() === order.emailAddress.toLowerCase());
+  if (account) {
     account.pendingPayment = false;
+    await saveStore("users", users);
+  } else {
+    const newStudent = {
+      id: order.userId,
+      name: order.fullName || "Student",
+      email: order.emailAddress.toLowerCase(),
+      passwordHash: "",
+      role: "student" as const,
+      createdAt: new Date().toISOString(),
+      blocked: false,
+      pendingPayment: false
+    };
+    users.push(newStudent);
     await saveStore("users", users);
   }
 

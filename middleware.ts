@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { createServerClient } from "@supabase/ssr";
 
 const SESSION_COOKIE = "subhan_session";
 
@@ -66,8 +67,9 @@ async function verifyToken(rawToken?: string | null) {
 
     const json = JSON.parse(new TextDecoder().decode(decodeBase64Url(payload)));
     if (!json || typeof json !== "object" || typeof json.exp !== "number" || json.exp < Date.now()) return null;
-    if (json.role !== "student" && json.role !== "admin") return null;
-    return json as { role: "student" | "admin" };
+    const roleLower = String(json.role || "").toLowerCase();
+    if (roleLower !== "student" && roleLower !== "admin") return null;
+    return { role: roleLower as "student" | "admin" };
   } catch {
     return null;
   }
@@ -79,7 +81,45 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  const session = await verifyToken(req.cookies.get(SESSION_COOKIE)?.value);
+  let supabaseResponse = NextResponse.next({ request: req });
+  let supabaseUser: { role: "student" | "admin" } | null = null;
+
+  const supabaseUrl = (process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL)?.replace(/^["']|["']$/g, "").trim();
+  const supabaseKey = (
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
+    process.env.SUPABASE_ANON_KEY ||
+    process.env.SUPABASE_PUBLISHABLE_KEY
+  )?.replace(/^["']|["']$/g, "").trim();
+
+  if (supabaseUrl && supabaseKey) {
+    try {
+      const supabase = createServerClient(supabaseUrl, supabaseKey, {
+        cookies: {
+          getAll() {
+            return req.cookies.getAll();
+          },
+          setAll(cookiesToSet) {
+            cookiesToSet.forEach(({ name, value }) => req.cookies.set(name, value));
+            supabaseResponse = NextResponse.next({ request: req });
+            cookiesToSet.forEach(({ name, value, options }) =>
+              supabaseResponse.cookies.set(name, value, options)
+            );
+          }
+        }
+      });
+
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const role = user.user_metadata?.role?.toLowerCase() === "admin" ? "admin" : "student";
+        supabaseUser = { role };
+      }
+    } catch {
+      // Supabase auth check error handled gracefully
+    }
+  }
+
+  const session = (await verifyToken(req.cookies.get(SESSION_COOKIE)?.value)) || supabaseUser;
   if (!session) {
     const url = new URL("/auth/login", req.url);
     url.searchParams.set("next", pathname);
@@ -90,7 +130,7 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(new URL("/student/dashboard", req.url));
   }
 
-  return NextResponse.next();
+  return supabaseResponse;
 }
 
 export const config = {

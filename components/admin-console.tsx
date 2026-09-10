@@ -29,6 +29,7 @@ import {
   Wallet
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { AppShowcaseManager } from "@/components/app-showcase";
 import type {
@@ -178,6 +179,11 @@ export function AdminConsole({
       }
     }
   }, [sessionToken]);
+
+  const router = useRouter();
+  const refreshData = () => {
+    router.refresh();
+  };
 
   const [studentQuery, setStudentQuery] = useState("");
   const [studentFilter, setStudentFilter] = useState<"all" | "active" | "blocked">("all");
@@ -423,7 +429,7 @@ export function AdminConsole({
                             try {
                               await api("/api/admin/users", "PATCH", { id: student.id, blocked: !student.blocked });
                               toast.success(student.blocked ? "Student unblocked" : "Student blocked");
-                              window.location.reload();
+                              refreshData();
                             } catch (error) {
                               toast.error(error instanceof Error ? error.message : "Unable to update student");
                             } finally {
@@ -501,7 +507,7 @@ export function AdminConsole({
                 };
                 await api("/api/admin/courses", "POST", payload);
                 toast.success("Course saved");
-                window.location.reload();
+                refreshData();
               } catch (error) {
                 toast.error(error instanceof Error ? error.message : "Unable to save course");
               } finally {
@@ -609,8 +615,11 @@ export function AdminConsole({
                   outcomes: selectedCourse.outcomes,
                   modules: selectedCourse.modules
                 });
+                selectedCourse.price = offerPrice;
+                selectedCourse.oldPrice = originalPrice;
+                selectedCourse.showDiscountDisplay = pricingForm.showDiscountDisplay;
                 toast.success("Pricing saved");
-                window.location.reload();
+                refreshData();
               } catch (error) {
                 toast.error(error instanceof Error ? error.message : "Unable to save pricing");
               } finally {
