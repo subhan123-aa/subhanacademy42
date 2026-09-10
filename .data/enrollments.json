@@ -1,1 +1,22 @@
-[]
+[
+  {
+    "id": "5c14bcf2-0cb6-4e34-8ca6-ffcf20a59d01",
+    "userId": "11004517-eda8-4365-87f3-e9892c97595b",
+    "courseId": "course-1",
+    "orderId": "595154db-a70f-4058-af2b-b0b70dce054c",
+    "enrolledAt": "2026-09-10T09:17:23.207+00:00",
+    "completedLessonIds": [],
+    "status": "active",
+    "paymentStatus": "paid"
+  },
+  {
+    "id": "9622e8cd-9ed9-476f-99a4-3e369944498c",
+    "userId": "a178af14-5c13-4119-9500-20e3ae4d81e3",
+    "courseId": "course-1",
+    "orderId": "d7469e65-31d0-4b9e-b8c7-a03989ea7a67",
+    "enrolledAt": "2026-09-10T09:22:48.341Z",
+    "completedLessonIds": [],
+    "status": "active",
+    "paymentStatus": "paid"
+  }
+]
