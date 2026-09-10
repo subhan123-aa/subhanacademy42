@@ -51,11 +51,24 @@ import { getCoursePricing } from "@/lib/pricing";
 async function api(url: string, method: string, body?: unknown) {
   const headers: Record<string, string> = { "Content-Type": "application/json" };
 
-  if (typeof document !== "undefined") {
-    const match = document.cookie.match(/(?:^|;\s*)subhan_session=([^;]+)/);
-    const token = match ? decodeURIComponent(match[1]) : (typeof localStorage !== "undefined" ? localStorage.getItem("subhan_session") : null);
+  if (typeof window !== "undefined") {
+    let token: string | null = null;
+    try {
+      token = localStorage.getItem("subhan_session");
+    } catch {
+      // localStorage may be disabled
+    }
+    if (!token && typeof document !== "undefined") {
+      const match = document.cookie.match(/(?:^|;\s*)subhan_session=([^;]+)/);
+      if (match && match[1]) {
+        token = decodeURIComponent(match[1]);
+      }
+    }
     if (token) {
-      headers["Authorization"] = `Bearer ${token}`;
+      const clean = token.replace(/^["']|["']$/g, "").trim();
+      if (clean) {
+        headers["Authorization"] = `Bearer ${clean}`;
+      }
     }
   }
 
@@ -119,6 +132,7 @@ function toMoneyInputValue(value?: number) {
 }
 
 export function AdminConsole({
+  sessionToken,
   courses: rawCourses,
   coupons: rawCoupons,
   testimonials: rawTestimonials,
@@ -131,6 +145,7 @@ export function AdminConsole({
   progress: rawProgress,
   siteConfig
 }: {
+  sessionToken?: string;
   courses?: Course[] | null;
   coupons?: Coupon[] | null;
   testimonials?: Testimonial[] | null;
@@ -153,6 +168,16 @@ export function AdminConsole({
   const users = Array.isArray(rawUsers) ? rawUsers : [];
   const enrollments = Array.isArray(rawEnrollments) ? rawEnrollments : [];
   const progress = Array.isArray(rawProgress) ? rawProgress : [];
+
+  useEffect(() => {
+    if (sessionToken && typeof window !== "undefined") {
+      try {
+        localStorage.setItem("subhan_session", sessionToken);
+      } catch {
+        // Ignore storage error
+      }
+    }
+  }, [sessionToken]);
 
   const [studentQuery, setStudentQuery] = useState("");
   const [studentFilter, setStudentFilter] = useState<"all" | "active" | "blocked">("all");

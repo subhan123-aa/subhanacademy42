@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import { authCookieName, verifySession } from "@/lib/auth";
 import { getStore } from "@/lib/data";
+import type { Role } from "@/lib/types";
 
 export async function getSessionUser() {
   const cookieStore = await cookies();
@@ -24,9 +25,17 @@ export async function getCurrentUser() {
         createdAt: new Date().toISOString()
       };
     }
-    return null;
+    return {
+      id: session.sub,
+      name: session.name || "Student",
+      email: session.email,
+      passwordHash: "",
+      role: (session.role as Role) || "student",
+      createdAt: new Date().toISOString()
+    };
   }
-  if (user.blocked || user.pendingPayment) return null;
+  if (user.blocked) return null;
+  if (user.role !== "admin" && user.pendingPayment) return null;
   return user;
 }
 

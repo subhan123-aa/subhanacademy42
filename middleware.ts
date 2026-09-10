@@ -3,8 +3,11 @@ import { NextRequest, NextResponse } from "next/server";
 const SESSION_COOKIE = "subhan_session";
 
 function getSessionSecret() {
-  const secret = process.env.SESSION_SECRET?.trim();
-  if (secret) return secret;
+  const raw = process.env.SESSION_SECRET?.trim();
+  if (raw) {
+    const unquoted = raw.replace(/^["']|["']$/g, "").trim();
+    if (unquoted) return unquoted;
+  }
   return "subhan-academy-default-session-secret-key-32ch";
 }
 
@@ -14,28 +17,52 @@ function decodeBase64Url(value: string) {
   return Uint8Array.from(atob(padded), (char) => char.charCodeAt(0));
 }
 
-async function verifyToken(token?: string | null) {
+function cleanToken(raw?: string | null): string | null {
+  if (!raw) return null;
+  let token = raw.trim();
+  if ((token.startsWith('"') && token.endsWith('"')) || (token.startsWith("'") && token.endsWith("'"))) {
+    token = token.slice(1, -1).trim();
+  }
+  return token || null;
+}
+
+async function verifyToken(rawToken?: string | null) {
+  const token = cleanToken(rawToken);
   if (!token) return null;
   const [payload, signature, ...rest] = token.split(".");
   if (!payload || !signature || rest.length > 0) return null;
 
   try {
-    const key = await crypto.subtle.importKey(
-      "raw",
-      new TextEncoder().encode(getSessionSecret()),
-      { name: "HMAC", hash: "SHA-256" },
-      false,
-      ["sign"]
-    );
-    const expected = new Uint8Array(await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(payload)));
-    const actual = decodeBase64Url(signature);
-    if (expected.length !== actual.length) return null;
+    const primarySecret = getSessionSecret();
+    const rawSecret = process.env.SESSION_SECRET?.trim();
+    const fallbackSecret = "subhan-academy-default-session-secret-key-32ch";
+    const secretsToTry = Array.from(new Set([primarySecret, rawSecret, fallbackSecret].filter(Boolean) as string[]));
 
-    let difference = 0;
-    for (let index = 0; index < expected.length; index += 1) {
-      difference |= expected[index] ^ actual[index];
+    const actual = decodeBase64Url(signature);
+    let valid = false;
+
+    for (const secret of secretsToTry) {
+      const key = await crypto.subtle.importKey(
+        "raw",
+        new TextEncoder().encode(secret),
+        { name: "HMAC", hash: "SHA-256" },
+        false,
+        ["sign"]
+      );
+      const expected = new Uint8Array(await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(payload)));
+      if (expected.length !== actual.length) continue;
+
+      let difference = 0;
+      for (let index = 0; index < expected.length; index += 1) {
+        difference |= expected[index] ^ actual[index];
+      }
+      if (difference === 0) {
+        valid = true;
+        break;
+      }
     }
-    if (difference !== 0) return null;
+
+    if (!valid) return null;
 
     const json = JSON.parse(new TextDecoder().decode(decodeBase64Url(payload)));
     if (!json || typeof json !== "object" || typeof json.exp !== "number" || json.exp < Date.now()) return null;

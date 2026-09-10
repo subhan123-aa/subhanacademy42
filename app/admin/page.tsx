@@ -1,3 +1,4 @@
+import { cookies } from "next/headers";
 import { DashboardShell } from "@/components/dashboard-shell";
 import { AdminConsole } from "@/components/admin-console";
 import { getCurrentUser } from "@/lib/queries";
@@ -5,10 +6,14 @@ import { getStore } from "@/lib/data";
 import { notFound } from "next/navigation";
 import { formatCurrency } from "@/lib/utils";
 import { getSiteConfig } from "@/lib/site-config";
+import { authCookieName, cleanToken } from "@/lib/auth";
 
 export default async function AdminPage() {
   const currentUser = await getCurrentUser();
   if (!currentUser || currentUser.role !== "admin") notFound();
+
+  const cookieStore = await cookies();
+  const sessionToken = cleanToken(cookieStore.get(authCookieName())?.value) ?? "";
 
   const [courses, coupons, testimonials, announcements, previewVideos, appShowcaseScreenshots, orders, users, enrollments, progress, siteConfig] = await Promise.all([
     getStore("courses"),
@@ -37,6 +42,7 @@ export default async function AdminPage() {
           <Stat title="Payments" value={String(orders.length)} />
         </div>
         <AdminConsole
+          sessionToken={sessionToken}
           courses={courses}
           coupons={coupons}
           testimonials={testimonials}

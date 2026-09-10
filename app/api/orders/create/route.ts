@@ -54,27 +54,31 @@ export async function POST(req: NextRequest) {
       createdAt: new Date().toISOString()
     };
 
-    // Local Cashfree callbacks must return to the active dev-server port. Use the
-    // configured public domain only for deployed production requests.
+    // Dynamic returnUrl resolution: Use configured NEXT_PUBLIC_BASE_URL, or dynamically derive
+    // the production HTTPS origin from trusted headers (x-forwarded-host, host, Vercel URL),
+    // and use active dev origin for local development.
     const requestOrigin = new URL(req.url).origin;
-    const configuredBaseUrl = process.env.NEXT_PUBLIC_BASE_URL?.trim();
-    if (process.env.NODE_ENV === "production") {
-      let parsedBaseUrl: URL | null = null;
-      try {
-        parsedBaseUrl = configuredBaseUrl ? new URL(configuredBaseUrl) : null;
-      } catch {
-        parsedBaseUrl = null;
-      }
+    const rawConfiguredBaseUrl = process.env.NEXT_PUBLIC_BASE_URL?.replace(/^["']|["']$/g, "").trim();
 
-      if (
-        !parsedBaseUrl ||
-        parsedBaseUrl.protocol !== "https:" ||
-        /localhost|127\.0\.0\.1|0\.0\.0\.0/i.test(parsedBaseUrl.hostname)
-      ) {
-        throw new Error("NEXT_PUBLIC_BASE_URL must be set to the public HTTPS production URL before accepting payments.");
+    let baseUrl = requestOrigin;
+
+    if (rawConfiguredBaseUrl) {
+      try {
+        const parsed = new URL(rawConfiguredBaseUrl);
+        baseUrl = parsed.origin;
+      } catch {
+        // Fallback below
       }
     }
-    const baseUrl = process.env.NODE_ENV === "production" ? new URL(configuredBaseUrl!).origin : requestOrigin;
+
+    if (process.env.NODE_ENV === "production" && (!rawConfiguredBaseUrl || /localhost|127\.0\.0\.1|0\.0\.0\.0/i.test(baseUrl))) {
+      const forwardedHost = req.headers.get("x-forwarded-host") || req.headers.get("host") || process.env.VERCEL_URL;
+      const forwardedProto = (req.headers.get("x-forwarded-proto") || "https").split(",")[0].trim();
+      if (forwardedHost) {
+        const cleanHost = forwardedHost.replace(/^https?:\/\//, "").trim();
+        baseUrl = `${forwardedProto}://${cleanHost}`;
+      }
+    }
     const cashfreeOrder = await createCashfreeOrder({
       orderId: order.id,
       amount: total,

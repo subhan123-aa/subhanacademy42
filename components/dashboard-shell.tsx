@@ -118,6 +118,15 @@ export function DashboardShell({
                 <Link
                   key={item.href}
                   href={item.href}
+                  onClick={() => {
+                    if (item.href === "/api/auth/logout" && typeof window !== "undefined") {
+                      try {
+                        localStorage.removeItem("subhan_session");
+                      } catch {
+                        // ignore
+                      }
+                    }
+                  }}
                   className={linkClassName}
                 >
                   <Icon className="h-4 w-4" />

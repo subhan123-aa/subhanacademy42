@@ -4,9 +4,21 @@ import type { Role, User } from "@/lib/types";
 const SESSION_COOKIE = "subhan_session";
 const ITERATIONS = 120000;
 
+export function cleanToken(token?: string | null): string | null {
+  if (!token) return null;
+  let cleaned = token.trim();
+  if ((cleaned.startsWith('"') && cleaned.endsWith('"')) || (cleaned.startsWith("'") && cleaned.endsWith("'"))) {
+    cleaned = cleaned.slice(1, -1).trim();
+  }
+  return cleaned || null;
+}
+
 function getSessionSecret() {
-  const secret = process.env.SESSION_SECRET?.trim();
-  if (secret) return secret;
+  const raw = process.env.SESSION_SECRET?.trim();
+  if (raw) {
+    const unquoted = raw.replace(/^["']|["']$/g, "").trim();
+    if (unquoted) return unquoted;
+  }
   return "subhan-academy-default-session-secret-key-32ch";
 }
 
@@ -48,15 +60,17 @@ export function signSession(user: Pick<User, "id" | "email" | "role" | "name">) 
   return `${payload}.${signature}`;
 }
 
-export function verifySession(token?: string | null) {
+export function verifySession(rawToken?: string | null) {
+  const token = cleanToken(rawToken);
   if (!token) return null;
   const [payload, signature] = token.split(".");
   if (!payload || !signature) return null;
 
   try {
     const primarySecret = getSessionSecret();
+    const rawSecret = process.env.SESSION_SECRET?.trim();
     const fallbackSecret = "subhan-academy-default-session-secret-key-32ch";
-    const secretsToTry = Array.from(new Set([primarySecret, fallbackSecret]));
+    const secretsToTry = Array.from(new Set([primarySecret, rawSecret, fallbackSecret].filter(Boolean) as string[]));
 
     let valid = false;
     for (const secret of secretsToTry) {

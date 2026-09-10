@@ -6,9 +6,9 @@ const CASHFREE_API_VERSION = "2025-01-01";
 const CASHFREE_API_BASE_URL = "https://api.cashfree.com/pg";
 
 function getCashfreeConfig() {
-  const clientId = process.env.CASHFREE_CLIENT_ID?.trim();
-  const clientSecret = process.env.CASHFREE_CLIENT_SECRET?.trim();
-  const environment = process.env.CASHFREE_ENVIRONMENT?.trim().toLowerCase();
+  const clientId = process.env.CASHFREE_CLIENT_ID?.replace(/^["']|["']$/g, "").trim();
+  const clientSecret = process.env.CASHFREE_CLIENT_SECRET?.replace(/^["']|["']$/g, "").trim();
+  const environment = process.env.CASHFREE_ENVIRONMENT?.replace(/^["']|["']$/g, "").trim().toLowerCase();
 
   return {
     clientId,
@@ -40,9 +40,9 @@ async function cashfreeRequest(path: string, init?: RequestInit) {
       ...(init?.headers ?? {})
     }
   });
-  const data = await response.json();
+  const data = await response.json().catch(() => ({}));
   if (!response.ok) {
-    throw new Error(data?.message || data?.message?.[0] || "Cashfree request failed.");
+    throw new Error(data?.message || data?.message?.[0] || `Cashfree request failed (${response.status})`);
   }
   return data as Record<string, unknown>;
 }
@@ -91,24 +91,33 @@ export async function createCashfreeOrder({
 }
 
 export async function isCashfreeOrderPaid(orderId: string) {
-  const order = await cashfreeRequest(`/orders/${encodeURIComponent(orderId)}`);
-  if (String(order.order_status).toUpperCase() === "PAID") {
-    return { paid: true, paymentId: null };
+  try {
+    const order = await cashfreeRequest(`/orders/${encodeURIComponent(orderId)}`);
+    if (String(order.order_status).toUpperCase() === "PAID") {
+      return { paid: true, paymentId: null };
+    }
+
+    try {
+      const payments = await cashfreeRequest(`/orders/${encodeURIComponent(orderId)}/payments`);
+      const successfulPayment = Array.isArray(payments)
+        ? (payments.find((payment) => String((payment as Record<string, unknown>).payment_status).toUpperCase() === "SUCCESS") as Record<string, unknown> | undefined)
+        : undefined;
+
+      return {
+        paid: Boolean(successfulPayment),
+        paymentId: successfulPayment?.cf_payment_id ? String(successfulPayment.cf_payment_id) : null
+      };
+    } catch {
+      return { paid: false, paymentId: null };
+    }
+  } catch (error) {
+    console.warn(`[cashfree] Verification check for order '${orderId}' returned error:`, error instanceof Error ? error.message : error);
+    return { paid: false, paymentId: null };
   }
-
-  const payments = await cashfreeRequest(`/orders/${encodeURIComponent(orderId)}/payments`);
-  const successfulPayment = Array.isArray(payments)
-    ? payments.find((payment) => String((payment as Record<string, unknown>).payment_status).toUpperCase() === "SUCCESS") as Record<string, unknown> | undefined
-    : undefined;
-
-  return {
-    paid: Boolean(successfulPayment),
-    paymentId: successfulPayment?.cf_payment_id ? String(successfulPayment.cf_payment_id) : null
-  };
 }
 
 export function verifyCashfreeWebhookSignature(rawBody: string, signature: string | null, timestamp: string | null) {
-  const secret = process.env.CASHFREE_CLIENT_SECRET?.trim();
+  const secret = process.env.CASHFREE_CLIENT_SECRET?.replace(/^["']|["']$/g, "").trim();
   if (!secret || !signature || !timestamp) return false;
   const expected = crypto.createHmac("sha256", secret).update(`${timestamp}${rawBody}`).digest("base64");
   if (expected.length !== signature.length) return false;
@@ -151,11 +160,13 @@ export async function completeCashfreeOrder(order: Order, paymentId?: string | n
   order.paidAt = order.paidAt || new Date().toISOString();
 
   const orders = await getStore("orders");
-  const storedOrder = orders.find((item) => item.id === order.id);
-  if (storedOrder) {
-    Object.assign(storedOrder, order);
-    await saveStore("orders", orders);
+  const storedIndex = orders.findIndex((item) => item.id === order.id || (item.providerOrderId && item.providerOrderId === order.providerOrderId));
+  if (storedIndex >= 0) {
+    orders[storedIndex] = { ...orders[storedIndex], ...order };
+  } else {
+    orders.push(order);
   }
+  await saveStore("orders", orders);
 
   const users = await getStore("users");
   const account = users.find((item) => item.id === order.userId);

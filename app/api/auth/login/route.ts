@@ -18,7 +18,8 @@ export async function POST(req: NextRequest) {
       ? safeNext?.startsWith("/admin") ? safeNext : "/admin"
       : safeNext?.startsWith("/student") ? safeNext : "/student/dashboard";
     const token = signSession(user);
-    const isHttps = req.nextUrl.protocol === "https:" || req.headers.get("x-forwarded-proto") === "https";
+    const forwardedProto = (req.headers.get("x-forwarded-proto") || "").toLowerCase();
+    const isHttps = req.nextUrl.protocol === "https:" || forwardedProto.includes("https") || process.env.NODE_ENV === "production";
     const response = NextResponse.json({ message: "Logged in successfully.", nextUrl, token });
     response.cookies.set("subhan_session", token, {
       httpOnly: true,
