@@ -1,9 +1,7 @@
 ﻿import { BookOpen, CheckCircle2, Lightbulb, Route, Users, type LucideIcon } from "lucide-react";
 import { Badge, ButtonLink, Container, Footer, HeroVisual, HighlightRow, Navbar, SectionHeading } from "@/components/site";
 import CourseCurriculum from "@/components/course-curriculum";
-import { AppShowcaseSection } from "@/components/app-showcase";
 import { MentorCard } from "@/components/mentor-card";
-import { DashboardShowcase } from "@/components/dashboard-showcase";
 import TestimonialsCarousel from "@/components/testimonials-carousel";
 import { getStore } from "@/lib/data";
 import { formatCurrency } from "@/lib/utils";
@@ -21,16 +19,14 @@ const whyLearnFeatures: { icon: LucideIcon; title: string; description: string }
 ];
 
 export default async function HomePage() {
-  const [courses, siteConfig, previewVideo, appShowcaseScreenshots] = await Promise.all([
+  const [courses, siteConfig, previewVideo] = await Promise.all([
     getStore("courses"),
     getSiteConfig(),
-    getActivePreviewVideo(),
-    getStore("appShowcaseScreenshots")
+    getActivePreviewVideo()
   ]);
 
   const course = courses[0] ?? { price: 0, oldPrice: 0, showDiscountDisplay: true };
   const pricing = getCoursePricing(course);
-  const dashboardShowcaseImage = siteConfig.dashboardShowcaseImage || "/images/sabjihub-dashboard-showcase.svg";
 
   return (
     <div className="min-h-screen">
@@ -133,32 +129,6 @@ export default async function HomePage() {
             </div>
           </Container>
         </section>
-        <section className="border-y border-emerald-100 bg-white py-14 sm:py-16">
-          <Container>
-            <div className="mx-auto max-w-3xl text-center">
-              <span className="inline-flex rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-brand-700">
-                REAL SABJIHUB DASHBOARD
-              </span>
-              <h2 className="mt-4 text-balance text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl">
-                See the Business Behind the Course
-              </h2>
-              <p className="mt-4 text-base leading-7 text-slate-600">
-                Get a real look at the dashboard, operations and tools behind SabjiHub.
-              </p>
-            </div>
-
-            <div className="mx-auto mt-10 max-w-6xl">
-              <DashboardShowcase
-                src={dashboardShowcaseImage}
-                alt="SabjiHub admin dashboard screenshot"
-                updatedText="Saved and managed through Website Content"
-              />
-            </div>
-          </Container>
-        </section>
-
-        <AppShowcaseSection screenshots={appShowcaseScreenshots} />
-
         <section className="border-y border-slate-200 bg-white py-16 sm:py-20">
           <Container>
             <div className="mx-auto max-w-3xl text-center">
