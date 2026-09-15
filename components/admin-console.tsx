@@ -94,7 +94,7 @@ async function fileToDataUrl(file: File) {
 }
 
 function AdminSection({ id, activeSection, children }: { id: string; activeSection: string; children: React.ReactNode }) {
-  if (id === "pricing" || activeSection !== id) return null;
+  if (activeSection !== id) return null;
   return <div className="animate-[admin-section-in_220ms_ease-out]">{children}</div>;
 }
 
@@ -515,22 +515,13 @@ export function AdminConsole({
                 if (!Number.isFinite(originalPrice) || !Number.isFinite(offerPrice) || originalPrice < 0 || offerPrice < 0) {
                   throw new Error("Enter valid non-negative prices.");
                 }
+                if (offerPrice > originalPrice) throw new Error("Offer price cannot be higher than the original price.");
 
-                await api("/api/admin/courses", "POST", {
-                  id: selectedCourse.id,
-                  slug: selectedCourse.slug,
-                  title: selectedCourse.title,
-                  subtitle: selectedCourse.subtitle,
-                  price: offerPrice,
-                  oldPrice: originalPrice,
+                await api("/api/admin/pricing", "PATCH", {
+                  courseId: selectedCourse.id,
+                  originalPrice,
+                  offerPrice,
                   showDiscountDisplay: pricingForm.showDiscountDisplay,
-                  thumbnail: selectedCourse.thumbnail,
-                  published: selectedCourse.published,
-                  hours: selectedCourse.hours,
-                  previewLessonId: selectedCourse.previewLessonId,
-                  includes: selectedCourse.includes,
-                  outcomes: selectedCourse.outcomes,
-                  modules: selectedCourse.modules
                 });
                 selectedCourse.price = offerPrice;
                 selectedCourse.oldPrice = originalPrice;
@@ -586,7 +577,7 @@ export function AdminConsole({
                 <input
                   type="number"
                   min="0"
-                  step="1"
+                  step="0.01"
                   inputMode="numeric"
                   value={pricingForm.originalPrice}
                   onChange={(event) => setPricingForm((current) => ({ ...current, originalPrice: event.target.value }))}
@@ -600,7 +591,7 @@ export function AdminConsole({
                 <input
                   type="number"
                   min="0"
-                  step="1"
+                  step="0.01"
                   inputMode="numeric"
                   value={pricingForm.offerPrice}
                   onChange={(event) => setPricingForm((current) => ({ ...current, offerPrice: event.target.value }))}
@@ -609,6 +600,18 @@ export function AdminConsole({
                 />
               </label>
             </div>
+
+            <label className="grid gap-2">
+              <span className="text-sm font-medium text-slate-700">Discount %</span>
+              <input
+                type="text"
+                readOnly
+                value={pricingPreview?.hasDiscount ? `${pricingPreview.discountPercent}%` : "0%"}
+                aria-label="Calculated discount percentage"
+                className="h-11 rounded-2xl border border-slate-200 bg-slate-100 px-4 text-sm font-semibold text-emerald-700"
+              />
+              <span className="text-xs text-slate-500">Calculated automatically from the original and offer prices.</span>
+            </label>
 
             <div className="flex flex-wrap gap-3 pt-1">
               <button

@@ -47,6 +47,21 @@ const moduleSchema = z.object({
 
 const currencySchema = z.coerce.number().finite().min(0, "Price cannot be negative.");
 
+const adminPriceSchema = currencySchema.max(10_000_000, "Price is too large.").refine(
+  (value) => Number.isInteger(value * 100),
+  "Price can have at most two decimal places."
+);
+
+export const adminPricingSchema = z.object({
+  courseId: z.string().min(1),
+  originalPrice: adminPriceSchema,
+  offerPrice: adminPriceSchema,
+  showDiscountDisplay: z.coerce.boolean().default(true)
+}).refine((value) => value.offerPrice <= value.originalPrice, {
+  message: "Offer price cannot be higher than the original price.",
+  path: ["offerPrice"]
+});
+
 export const checkoutCustomerSchema = z.object({
   fullName: z.string().trim().min(2, "Full name is required."),
   emailAddress: z.string().trim().email("Enter a valid email address."),
