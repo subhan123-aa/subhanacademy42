@@ -13,9 +13,12 @@ export async function POST(req: NextRequest) {
     const course = (await getStore("courses")).find((item) => item.id === body.courseId);
     if (!course) return NextResponse.json({ error: "Course not found." }, { status: 404 });
 
-    const enrollments = await getStore("enrollments");
+    const [enrollments, orders] = await Promise.all([getStore("enrollments"), getStore("orders")]);
     const enrollment = enrollments.find((item) => item.userId === user.id && item.courseId === body.courseId);
-    if (!enrollment) return NextResponse.json({ error: "Enrollment required." }, { status: 403 });
+    const hasPaidOrder = orders.some((order) => order.userId === user.id && order.courseId === body.courseId && order.status === "paid");
+    if (!enrollment || (enrollment.status !== "active" && enrollment.status !== undefined) || (enrollment.paymentStatus !== "paid" && enrollment.paymentStatus !== undefined) || !hasPaidOrder) {
+      return NextResponse.json({ error: "A verified payment is required." }, { status: 403 });
+    }
 
     if (!enrollment.completedLessonIds.includes(body.lessonId)) {
       enrollment.completedLessonIds.push(body.lessonId);

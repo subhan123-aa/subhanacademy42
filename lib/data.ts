@@ -77,7 +77,24 @@ const tableMap: Record<StoreKey, string> = {
 const memoryStore: Partial<StoreMap> = {};
 const memoryStoreTimestamp: Partial<Record<StoreKey, number>> = {};
 const CACHE_TTL_MS = 5000; // 5 seconds cache in serverless memory to allow multi-instance freshness
+const SUPABASE_READ_TIMEOUT_MS = 1500;
 let seedingPromise: Promise<void> | null = null;
+
+function withTimeout<T>(promise: PromiseLike<T>, timeoutMs: number): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const timeout = setTimeout(() => reject(new Error(`Request timed out after ${timeoutMs}ms`)), timeoutMs);
+    promise.then(
+      (value) => {
+        clearTimeout(timeout);
+        resolve(value);
+      },
+      (error) => {
+        clearTimeout(timeout);
+        reject(error);
+      }
+    );
+  });
+}
 
 async function ensureDataDir() {
   try {
@@ -341,7 +358,10 @@ export async function getStore<K extends StoreKey>(key: K): Promise<StoreMap[K]>
     try {
       const supabase = createSupabaseAdminClient();
       const tableName = tableMap[key];
-      const { data, error } = await supabase.from(tableName).select("*");
+      const { data, error } = await withTimeout(
+        supabase.from(tableName).select("*"),
+        SUPABASE_READ_TIMEOUT_MS
+      );
 
       if (error) {
         console.warn(`[supabase] getStore(${key}) failed: ${error.message}. Falling back to file store.`);

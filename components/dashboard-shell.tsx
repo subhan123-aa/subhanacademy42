@@ -12,7 +12,6 @@ import {
   PlaySquare,
   Settings,
   ShieldCheck,
-  BadgePercent,
   Star,
   UserRound,
   Wallet
@@ -33,7 +32,6 @@ const adminNavItems = [
   { href: "#overview", label: "Overview", icon: ShieldCheck },
   { href: "#students", label: "Students", icon: UserRound },
   { href: "#courses", label: "Courses", icon: BookOpen },
-  { href: "#pricing", label: "Pricing", icon: BadgePercent },
   { href: "#enrollments", label: "Enrollments", icon: LayoutDashboard },
   { href: "#payments", label: "Payments", icon: Wallet },
   { href: "#coupons", label: "Coupons", icon: CircleDollarSign },

@@ -44,7 +44,7 @@ export default async function StudentDashboardPage({
               </div>
               <div className="p-6 sm:p-7">
                 <div className="flex flex-wrap items-start justify-between gap-4">
-                  <div><p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">Your course</p><h2 className="mt-2 text-2xl font-semibold tracking-tight text-slate-950">SabjiHub Blueprint</h2><p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">{course.subtitle}</p></div>
+                  <div><p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-700">Your course</p><h2 className="mt-2 text-2xl font-semibold tracking-tight text-slate-950">{course.title}</h2><p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">{course.subtitle}</p></div>
                   <span className="rounded-full border border-brand-100 bg-brand-50 px-3 py-1 text-sm font-semibold text-brand-700">{percent}% complete</span>
                 </div>
                 <div className="mt-7 h-2.5 overflow-hidden rounded-full bg-slate-100"><div className="h-full rounded-full bg-brand-600 transition-all" style={{ width: `${percent}%` }} /></div>

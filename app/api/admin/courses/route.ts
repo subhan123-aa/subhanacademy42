@@ -60,6 +60,8 @@ export async function POST(req: NextRequest) {
       revalidatePath("/courses");
       revalidatePath(`/courses/${nextCourse.slug}`);
       revalidatePath("/checkout");
+      revalidatePath("/student/dashboard");
+      revalidatePath(`/student/courses/${nextCourse.id}`);
     } catch {
       // ignore in non-request contexts
     }

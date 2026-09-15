@@ -69,7 +69,7 @@ export function CoursePlayer({
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
               <p className="text-sm font-medium text-brand-200">Your complete learning experience</p>
-              <h2 className="mt-1 text-2xl font-semibold tracking-tight sm:text-3xl">SabjiHub Blueprint</h2>
+              <h2 className="mt-1 text-2xl font-semibold tracking-tight sm:text-3xl">{course.title}</h2>
               <p className="mt-2 max-w-2xl text-sm leading-6 text-white/60">{activeLesson?.title}</p>
             </div>
             {activeLesson ? <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-xs font-semibold text-white/80"><Clock3 className="h-3.5 w-3.5" />{activeLesson.duration}</span> : null}

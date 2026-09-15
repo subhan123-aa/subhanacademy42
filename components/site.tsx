@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Check, Menu, Play, Sparkles, X } from "lucide-react";
+import { ArrowRight, BriefcaseBusiness, Check, Coffee, Dumbbell, Grid2X2, Menu, Play, ShoppingBasket, Sparkles, Store, X } from "lucide-react";
 import type { PreviewVideo } from "@/lib/types";
 import { useState } from "react";
 import { cn, formatCurrency } from "@/lib/utils";
@@ -265,7 +265,7 @@ export function HeroVisual({
   variant = "default"
 }: {
   previewVideo?: PreviewVideo | null;
-  variant?: "default" | "mobile";
+  variant?: "default" | "mobile" | "hero";
 }) {
   const [isPlaying, setIsPlaying] = useState(false);
   const embedUrl = previewVideo?.embedUrl ?? "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1&rel=0";
@@ -275,6 +275,43 @@ export function HeroVisual({
       : "/images/mentor-subhan.png";
   const title = previewVideo?.title || "SabjiHub course introduction";
   const description = previewVideo?.description || "See how I built SabjiHub and what you will learn inside the course.";
+
+  if (variant === "hero") {
+    const businessTypes = [
+      { label: "Grocery Store", icon: ShoppingBasket, color: "text-emerald-700 bg-emerald-50" },
+      { label: "Cafe / Tea Stall", icon: Coffee, color: "text-amber-700 bg-amber-50" },
+      { label: "Retail Store", icon: Store, color: "text-sky-700 bg-sky-50" },
+      { label: "Gym / Fitness", icon: Dumbbell, color: "text-violet-700 bg-violet-50" },
+      { label: "And Many More...", icon: Grid2X2, color: "text-pink-700 bg-pink-50" }
+    ];
+
+    return (
+      <div className="relative mx-auto h-[22rem] w-full max-w-[22rem] sm:h-[31rem] sm:max-w-[35rem] lg:h-[34rem]">
+        <div className="absolute inset-2 rounded-[2rem] bg-gradient-to-br from-emerald-50 via-white to-lime-50 sm:inset-5 sm:rounded-[2.5rem]" />
+        <div className="absolute right-0 top-5 z-20 hidden w-[10.5rem] space-y-2 sm:block">
+          {businessTypes.map(({ label, icon: Icon, color }) => (
+            <div key={label} className="flex items-center gap-2 rounded-xl border border-slate-100 bg-white/95 px-3 py-2.5 text-[10px] font-semibold text-slate-700 shadow-[0_8px_22px_rgba(15,23,42,0.08)]">
+              <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${color}`}><Icon className="h-3.5 w-3.5" /></span>
+              {label}
+            </div>
+          ))}
+        </div>
+        <div className="absolute left-1/2 top-0 z-10 aspect-square w-[min(78vw,18rem)] -translate-x-1/2 sm:top-3 sm:h-[29rem] sm:w-[22rem] sm:aspect-auto">
+          <img src="/images/mentor-subhan.png" alt="Subhan Academy mentor" className="h-full w-full object-contain object-top [mask-image:linear-gradient(to_bottom,black_78%,transparent_100%)]" />
+        </div>
+        <div className="absolute bottom-1 left-1/2 z-20 h-[5.5rem] w-[min(84vw,18rem)] -translate-x-1/2 rounded-[1rem] border-4 border-slate-200 bg-slate-800 p-1 shadow-[0_18px_30px_rgba(15,23,42,0.2)] sm:bottom-5 sm:h-32 sm:w-[22rem] sm:rounded-[1.15rem] sm:shadow-[0_22px_36px_rgba(15,23,42,0.24)]">
+          <div className="flex h-full items-center justify-center overflow-hidden rounded-lg bg-gradient-to-br from-white via-emerald-50 to-emerald-100">
+            <div className="text-center font-serif text-sm font-semibold leading-5 text-slate-700 sm:text-base">Ideas<br />Planning<br />Execution<br /><span className="text-brand-600">Growth</span></div>
+          </div>
+        </div>
+        <div className="absolute bottom-4 left-2 hidden -rotate-3 rounded-lg bg-white px-3 py-2 text-[10px] font-semibold leading-4 text-slate-600 shadow-[0_10px_24px_rgba(15,23,42,0.1)] sm:block">Same<br />Framework.<br /><span className="text-brand-600">Any Business.</span></div>
+        <div className="absolute bottom-2 right-0 hidden space-y-1 sm:block">
+          {['Strategy', 'Marketing', 'Operations', 'Customers', 'Growth'].map((item) => <div key={item} className="w-28 border border-slate-200 bg-white px-3 py-1 text-[10px] font-medium text-slate-600 shadow-sm">{item}</div>)}
+        </div>
+      </div>
+    );
+  }
+
   const wrapperClassName =
     variant === "mobile" ? "relative flex w-full items-center justify-center overflow-hidden" : "relative flex items-center justify-center";
   const cardClassName =

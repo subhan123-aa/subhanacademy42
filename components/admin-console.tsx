@@ -24,7 +24,6 @@ import {
   Upload,
   ShieldCheck,
   Star,
-  Trash2,
   UserRound,
   Wallet
 } from "lucide-react";
@@ -99,6 +98,12 @@ function safeString(value: FormDataEntryValue | null, fallback = "") {
   return text || fallback;
 }
 
+type PricingFormState = { originalPrice: string; offerPrice: string; showDiscountDisplay: boolean };
+
+function toMoneyInputValue(value?: number) {
+  return Number.isFinite(value ?? NaN) ? String(value) : "";
+}
+
 async function fileToDataUrl(file: File) {
   return new Promise<string>((resolve, reject) => {
     const reader = new FileReader();
@@ -109,7 +114,7 @@ async function fileToDataUrl(file: File) {
 }
 
 function AdminSection({ id, activeSection, children }: { id: string; activeSection: string; children: React.ReactNode }) {
-  if (activeSection !== id) return null;
+  if (id === "pricing" || activeSection !== id) return null;
   return <div className="animate-[admin-section-in_220ms_ease-out]">{children}</div>;
 }
 
@@ -120,16 +125,6 @@ function initials(name: string) {
     .slice(0, 2)
     .map((part) => part[0]?.toUpperCase() ?? "")
     .join("");
-}
-
-type PricingFormState = {
-  originalPrice: string;
-  offerPrice: string;
-  showDiscountDisplay: boolean;
-};
-
-function toMoneyInputValue(value?: number) {
-  return Number.isFinite(value ?? NaN) ? String(value) : "";
 }
 
 export function AdminConsole({
@@ -192,13 +187,12 @@ export function AdminConsole({
   const [selectedTestimonialId, setSelectedTestimonialId] = useState(testimonials[0]?.id ?? "");
   const [selectedPreviewVideoId, setSelectedPreviewVideoId] = useState(previewVideos[0]?.id ?? "");
   const [busyKey, setBusyKey] = useState<string | null>(null);
-  const [activeSection, setActiveSection] = useState("overview");
-  const [lessonDraft, setLessonDraft] = useState<Lesson[]>(courses[0]?.modules?.[0]?.lessons ?? []);
   const [pricingForm, setPricingForm] = useState<PricingFormState>({
     originalPrice: toMoneyInputValue(courses[0]?.oldPrice ?? 0),
     offerPrice: toMoneyInputValue(courses[0]?.price ?? 0),
     showDiscountDisplay: courses[0]?.showDiscountDisplay ?? true
   });
+  const [activeSection, setActiveSection] = useState("overview");
   const [dashboardShowcasePreview, setDashboardShowcasePreview] = useState(
     siteConfig.dashboardShowcaseImage || "/images/sabjihub-dashboard-showcase.svg"
   );
@@ -214,10 +208,6 @@ export function AdminConsole({
   const selectedCoupon = coupons.find((coupon) => coupon.id === selectedCouponId) ?? coupons[0];
   const selectedTestimonial = testimonials.find((item) => item.id === selectedTestimonialId) ?? testimonials[0];
   const selectedPreviewVideo = previewVideos.find((item) => item.id === selectedPreviewVideoId);
-
-  useEffect(() => {
-    setLessonDraft(selectedCourse?.modules?.[0]?.lessons ?? []);
-  }, [selectedCourse?.id]);
 
   useEffect(() => {
     setPricingForm({
@@ -244,28 +234,15 @@ export function AdminConsole({
   const selectedCoursePricing = selectedCourse ? getCoursePricing(selectedCourse) : null;
   const pricingPreview = (() => {
     if (!selectedCourse) return null;
-
     const originalPrice = Number(pricingForm.originalPrice);
     const offerPrice = Number(pricingForm.offerPrice);
     if (Number.isFinite(originalPrice) && Number.isFinite(offerPrice) && originalPrice >= 0 && offerPrice >= 0) {
       const hasDiscount = originalPrice > offerPrice;
       const discountAmount = hasDiscount ? originalPrice - offerPrice : 0;
-      const discountPercent = hasDiscount && originalPrice > 0 ? Math.round((discountAmount / originalPrice) * 100) : 0;
-      return {
-        originalPrice,
-        offerPrice,
-        discountAmount,
-        discountPercent,
-        hasDiscount,
-        showDiscountDisplay: pricingForm.showDiscountDisplay
-      };
+      return { originalPrice, offerPrice, discountAmount, discountPercent: hasDiscount && originalPrice > 0 ? Math.round((discountAmount / originalPrice) * 100) : 0, hasDiscount };
     }
-
-    return selectedCoursePricing
-      ? { ...selectedCoursePricing, showDiscountDisplay: pricingForm.showDiscountDisplay }
-      : null;
+    return selectedCoursePricing ? { ...selectedCoursePricing } : null;
   })();
-
   const filteredStudents = useMemo(() => {
     const query = studentQuery.trim().toLowerCase();
     return users
@@ -468,12 +445,13 @@ export function AdminConsole({
           description="Manage course details and video lessons in one focused workspace."
           icon={<BookOpen className="h-5 w-5" />}
         />
-        <div className="mt-5 grid gap-6 xl:grid-cols-2">
+        <div className="mt-5 max-w-2xl">
           <form
             key={selectedCourse?.id ?? "new-course"}
-            className="grid gap-3 rounded-[1.75rem] border border-slate-200 bg-slate-50 p-5"
+            className="grid gap-5 rounded-[1.75rem] border border-slate-200 bg-slate-50 p-5 sm:p-6"
             onSubmit={async (event) => {
               event.preventDefault();
+              if (!selectedCourse) return;
               setBusyKey("course");
               try {
                 const formData = new FormData(event.currentTarget);
@@ -489,21 +467,33 @@ export function AdminConsole({
                   order: 1,
                   lessons: []
                 };
+                const existingLesson = firstModule.lessons[0];
+                const youtubeUrl = safeString(formData.get("youtubeUrl"));
+                const videoLesson: Lesson = {
+                  id: existingLesson?.id ?? crypto.randomUUID(),
+                  title: existingLesson?.title ?? "SabjiHub Blueprint",
+                  duration: existingLesson?.duration ?? "Video",
+                  videoUrl: youtubeUrl,
+                  summary: existingLesson?.summary ?? "SabjiHub Blueprint video lesson.",
+                  description: existingLesson?.description,
+                  thumbnail: existingLesson?.thumbnail,
+                  resources: existingLesson?.resources
+                };
                 const payload = {
                   id: selectedCourse?.id,
-                  slug: selectedCourse?.slug ?? safeString(formData.get("title")).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, ""),
+                  slug: selectedCourse.slug,
                   title: safeString(formData.get("title")),
-                  subtitle: safeString(formData.get("subtitle")),
-                  price: selectedCourse?.price ?? 0,
-                  oldPrice: selectedCourse?.oldPrice ?? 0,
-                  showDiscountDisplay: selectedCourse?.showDiscountDisplay ?? true,
+                  subtitle: selectedCourse.subtitle,
+                  price: selectedCourse.price,
+                  oldPrice: selectedCourse.oldPrice,
+                  showDiscountDisplay: selectedCourse.showDiscountDisplay ?? true,
                   thumbnail,
-                  published: formData.get("published") === "on",
-                  hours: selectedCourse?.hours ?? 1,
-                  previewLessonId: selectedCourse?.previewLessonId,
-                  includes: selectedCourse?.includes?.length ? selectedCourse.includes : ["Lifetime access"],
-                  outcomes: selectedCourse?.outcomes?.length ? selectedCourse.outcomes : ["Practical course lessons"],
-                  modules: existingModules.length ? [{ ...firstModule, lessons: lessonDraft }] .concat(existingModules.slice(1)) : [{ ...firstModule, lessons: lessonDraft }]
+                  published: selectedCourse.published,
+                  hours: selectedCourse.hours,
+                  previewLessonId: selectedCourse.previewLessonId,
+                  includes: selectedCourse.includes,
+                  outcomes: selectedCourse.outcomes,
+                  modules: existingModules.length ? [{ ...firstModule, lessons: [videoLesson] }].concat(existingModules.slice(1)) : [{ ...firstModule, lessons: [videoLesson] }]
                 };
                 await api("/api/admin/courses", "POST", payload);
                 toast.success("Course saved");
@@ -516,63 +506,22 @@ export function AdminConsole({
             }}
           >
             <label className="grid gap-2">
-              <span className="text-sm font-medium text-slate-700">Select course</span>
-              <select value={selectedCourse?.id ?? ""} onChange={(event) => setSelectedCourseId(event.target.value)} className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm">
-                {courses.map((course) => <option key={course.id} value={course.id}>{course.title}</option>)}
-              </select>
-            </label>
-            <label className="grid gap-2">
               <span className="text-sm font-medium text-slate-700">Course Title</span>
               <input name="title" defaultValue={selectedCourse?.title} className="h-11 rounded-2xl border border-slate-200 px-4" required />
             </label>
             <label className="grid gap-2">
-              <span className="text-sm font-medium text-slate-700">Course Description</span>
-              <textarea name="subtitle" defaultValue={selectedCourse?.subtitle} className="min-h-32 rounded-2xl border border-slate-200 px-4 py-3" required />
-            </label>
-            <label className="grid gap-2">
               <span className="text-sm font-medium text-slate-700">Course Thumbnail Upload</span>
               <input name="thumbnailFile" type="file" accept="image/*" className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm" />
-              <span className="text-xs text-slate-500">Current: {selectedCourse?.thumbnail ?? "No thumbnail"}</span>
             </label>
-            <label className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700">
-              <input name="published" type="checkbox" defaultChecked={selectedCourse?.published} />
-              Publish course
+            <label className="grid gap-2">
+              <span className="text-sm font-medium text-slate-700">YouTube Video Link</span>
+              <input name="youtubeUrl" type="url" defaultValue={selectedCourse?.modules?.[0]?.lessons?.[0]?.videoUrl ?? ""} placeholder="https://www.youtube.com/watch?v=..." className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm" required />
             </label>
-            <div className="flex flex-wrap gap-3">
-              <button
-                type="submit"
-                disabled={busyKey === "course"}
-                className="inline-flex h-11 items-center justify-center gap-2 rounded-full bg-brand-600 px-5 text-sm font-semibold text-white hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-70"
-              >
-                {busyKey === "course" ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowRight className="h-4 w-4" />}
-                Save Course
-              </button>
-              <button
-                type="button"
-                onClick={async () => {
-                  if (!selectedCourse) return;
-                  if (!window.confirm(`Delete course "${selectedCourse.title}"?`)) return;
-                  setBusyKey("course-delete");
-                  try {
-                    await api(`/api/admin/courses/${selectedCourse.id}`, "DELETE");
-                    toast.success("Course deleted");
-                    window.location.reload();
-                  } catch (error) {
-                    toast.error(error instanceof Error ? error.message : "Unable to delete course");
-                  } finally {
-                    setBusyKey(null);
-                  }
-                }}
-                disabled={busyKey === "course-delete"}
-                className="inline-flex h-11 items-center justify-center gap-2 rounded-full border border-red-200 bg-red-50 px-5 text-sm font-semibold text-red-700 disabled:cursor-not-allowed disabled:opacity-70"
-              >
-                <Trash2 className="h-4 w-4" />
-                Delete course
-              </button>
-            </div>
+            <button type="submit" disabled={busyKey === "course"} className="inline-flex h-11 w-fit items-center justify-center gap-2 rounded-full bg-brand-600 px-5 text-sm font-semibold text-white hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-70">
+              {busyKey === "course" ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowRight className="h-4 w-4" />}
+              Save Course
+            </button>
           </form>
-
-          <LessonEditor course={selectedCourse} onChange={setLessonDraft} />
         </div>
       </section>
       </AdminSection>
