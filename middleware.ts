@@ -100,7 +100,8 @@ export async function middleware(req: NextRequest) {
 
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        const role = user.user_metadata?.role?.toLowerCase() === "admin" ? "admin" : "student";
+        const roleClaim = user.app_metadata?.role || user.user_metadata?.role;
+        const role = typeof roleClaim === "string" && roleClaim.toLowerCase() === "admin" ? "admin" : "student";
         supabaseUser = { role };
       }
     } catch {

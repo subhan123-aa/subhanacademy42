@@ -16,7 +16,8 @@ export async function getSessionUser() {
       const supabase = await createSupabaseServerClient();
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        const userRole = (user.user_metadata?.role?.toLowerCase() === "admin" ? "admin" : "student") as Role;
+        const roleClaim = user.app_metadata?.role || user.user_metadata?.role;
+        const userRole = (typeof roleClaim === "string" && roleClaim.toLowerCase() === "admin" ? "admin" : "student") as Role;
         return {
           sub: user.id,
           email: user.email || "",
