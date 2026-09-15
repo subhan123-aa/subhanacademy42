@@ -8,6 +8,10 @@ import { formatCurrency } from "@/lib/utils";
 import { getSiteConfig } from "@/lib/site-config";
 import { authCookieName, cleanToken } from "@/lib/auth";
 
+// This page is session-bound and must always render per request in production.
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default async function AdminPage() {
   const currentUser = await getCurrentUser();
   if (!currentUser || currentUser.role !== "admin") notFound();
