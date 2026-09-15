@@ -20,7 +20,10 @@ export async function POST(req: NextRequest) {
     const token = signSession(user);
     const forwardedProto = (req.headers.get("x-forwarded-proto") || "").toLowerCase();
     const isHttps = req.nextUrl.protocol === "https:" || forwardedProto.includes("https") || process.env.NODE_ENV === "production";
-    const response = NextResponse.json({ message: "Logged in successfully.", nextUrl, token });
+    // The session is intentionally delivered only in the httpOnly cookie below.
+    // Returning it in JSON would expose it to client-side JavaScript and defeat
+    // the protection provided by an httpOnly cookie.
+    const response = NextResponse.json({ message: "Logged in successfully.", nextUrl });
     response.cookies.set("subhan_session", token, {
       httpOnly: true,
       sameSite: "lax",

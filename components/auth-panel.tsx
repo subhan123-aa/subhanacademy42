@@ -89,13 +89,6 @@ export function AuthPanel({
             });
             const data = await response.json();
             if (!response.ok) throw new Error(data.error || "Request failed");
-            if (data.token && typeof window !== "undefined") {
-              try {
-                localStorage.setItem("subhan_session", data.token);
-              } catch {
-                // Ignore storage quota or disabled storage
-              }
-            }
             toast.success(data.message || "Success");
             router.push(data.nextUrl || nextUrl);
             router.refresh();

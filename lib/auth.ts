@@ -19,7 +19,13 @@ function getSessionSecret() {
     const unquoted = raw.replace(/^["']|["']$/g, "").trim();
     if (unquoted) return unquoted;
   }
-  return "subhan-academy-default-session-secret-key-32ch";
+  // A deterministic fallback is acceptable only for a local development
+  // server.  Production must never sign or accept sessions with a secret that
+  // is present in the source code.
+  if (process.env.NODE_ENV !== "production") {
+    return "subhan-academy-local-development-session-secret";
+  }
+  throw new Error("SESSION_SECRET is not configured.");
 }
 
 function base64Url(input: Buffer | string) {
@@ -65,11 +71,6 @@ export function verifyPassword(password: string, stored?: string | null) {
     // ignore
   }
 
-  // Direct check for default Admin password
-  if (password === "Admin@123" && stored.includes("4c632e1858a74bbcf4808c16b9b3e1f061d4a04bf1f95f4e6d420349633e9d89")) {
-    return true;
-  }
-
   return false;
 }
 
@@ -95,21 +96,11 @@ export function verifySession(rawToken?: string | null) {
   if (!payload || !signature) return null;
 
   try {
-    const primarySecret = getSessionSecret();
-    const rawSecret = process.env.SESSION_SECRET?.trim();
-    const fallbackSecret = "subhan-academy-default-session-secret-key-32ch";
-    const secretsToTry = Array.from(new Set([primarySecret, rawSecret, fallbackSecret].filter(Boolean) as string[]));
-
-    let valid = false;
-    for (const secret of secretsToTry) {
-      const expected = crypto.createHmac("sha256", secret).update(payload).digest("base64url");
-      if (signature.length === expected.length && crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected))) {
-        valid = true;
-        break;
-      }
+    const secret = getSessionSecret();
+    const expected = crypto.createHmac("sha256", secret).update(payload).digest("base64url");
+    if (signature.length !== expected.length || !crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected))) {
+      return null;
     }
-
-    if (!valid) return null;
 
     const parsed = JSON.parse(fromBase64Url(payload).toString("utf8")) as {
       sub: string;

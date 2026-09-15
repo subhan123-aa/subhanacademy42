@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
     const token = signSession(user);
     const forwardedProto = (req.headers.get("x-forwarded-proto") || "").toLowerCase();
     const isHttps = req.nextUrl.protocol === "https:" || forwardedProto.includes("https") || process.env.NODE_ENV === "production";
-    const response = NextResponse.json({ message: "Account created successfully.", nextUrl: "/student/dashboard", token });
+    const response = NextResponse.json({ message: "Account created successfully.", nextUrl: "/student/dashboard" });
     response.cookies.set("subhan_session", token, {
       httpOnly: true,
       sameSite: "lax",

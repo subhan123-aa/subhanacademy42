@@ -9,7 +9,10 @@ function getSessionSecret() {
     const unquoted = raw.replace(/^["']|["']$/g, "").trim();
     if (unquoted) return unquoted;
   }
-  return "subhan-academy-default-session-secret-key-32ch";
+  if (process.env.NODE_ENV !== "production") {
+    return "subhan-academy-local-development-session-secret";
+  }
+  throw new Error("SESSION_SECRET is not configured.");
 }
 
 function decodeBase64Url(value: string) {
@@ -34,36 +37,22 @@ async function verifyToken(rawToken?: string | null) {
   if (!payload || !signature || rest.length > 0) return null;
 
   try {
-    const primarySecret = getSessionSecret();
-    const rawSecret = process.env.SESSION_SECRET?.trim();
-    const fallbackSecret = "subhan-academy-default-session-secret-key-32ch";
-    const secretsToTry = Array.from(new Set([primarySecret, rawSecret, fallbackSecret].filter(Boolean) as string[]));
-
     const actual = decodeBase64Url(signature);
-    let valid = false;
+    const key = await crypto.subtle.importKey(
+      "raw",
+      new TextEncoder().encode(getSessionSecret()),
+      { name: "HMAC", hash: "SHA-256" },
+      false,
+      ["sign"]
+    );
+    const expected = new Uint8Array(await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(payload)));
+    if (expected.length !== actual.length) return null;
 
-    for (const secret of secretsToTry) {
-      const key = await crypto.subtle.importKey(
-        "raw",
-        new TextEncoder().encode(secret),
-        { name: "HMAC", hash: "SHA-256" },
-        false,
-        ["sign"]
-      );
-      const expected = new Uint8Array(await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(payload)));
-      if (expected.length !== actual.length) continue;
-
-      let difference = 0;
-      for (let index = 0; index < expected.length; index += 1) {
-        difference |= expected[index] ^ actual[index];
-      }
-      if (difference === 0) {
-        valid = true;
-        break;
-      }
+    let difference = 0;
+    for (let index = 0; index < expected.length; index += 1) {
+      difference |= expected[index] ^ actual[index];
     }
-
-    if (!valid) return null;
+    if (difference !== 0) return null;
 
     const json = JSON.parse(new TextDecoder().decode(decodeBase64Url(payload)));
     if (!json || typeof json !== "object" || typeof json.exp !== "number" || json.exp < Date.now()) return null;

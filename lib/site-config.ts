@@ -1,6 +1,7 @@
 import { promises as fs } from "fs";
 import path from "path";
 import type { SiteConfig } from "@/lib/types";
+import { siteConfigSchema } from "@/lib/schemas";
 
 const primaryDataDir = process.env.VERCEL || process.env.NODE_ENV === "production"
   ? path.join("/tmp", ".data")
@@ -30,22 +31,42 @@ async function ensureDataDir() {
   }
 }
 
+/**
+ * Content settings are persisted outside the deployment bundle in production.
+ * Do not trust that file blindly: an older or interrupted write can still be
+ * valid JSON while not being a SiteConfig (for example, `null`).  Passing such
+ * a value to the admin client component causes a server-render exception after
+ * a successful login.  Validate it at the storage boundary instead.
+ */
+function parseSiteConfig(raw: string): SiteConfig | null {
+  try {
+    const parsed = siteConfigSchema.safeParse(JSON.parse(raw));
+    return parsed.success ? parsed.data : null;
+  } catch {
+    return null;
+  }
+}
+
+async function readSiteConfig(directory: string): Promise<SiteConfig | null> {
+  try {
+    const raw = await fs.readFile(path.join(directory, fileName), "utf8");
+    return parseSiteConfig(raw);
+  } catch {
+    return null;
+  }
+}
+
 export async function getSiteConfig(): Promise<SiteConfig> {
   await ensureDataDir();
-  try {
-    const raw = await fs.readFile(path.join(primaryDataDir, fileName), "utf8");
-    return JSON.parse(raw) as SiteConfig;
-  } catch {
-    if (primaryDataDir !== bundledDataDir) {
-      try {
-        const raw = await fs.readFile(path.join(bundledDataDir, fileName), "utf8");
-        return JSON.parse(raw) as SiteConfig;
-      } catch {
-        // Fallback below
-      }
-    }
-    return defaultConfig;
+  const primaryConfig = await readSiteConfig(primaryDataDir);
+  if (primaryConfig) return primaryConfig;
+
+  if (primaryDataDir !== bundledDataDir) {
+    const bundledConfig = await readSiteConfig(bundledDataDir);
+    if (bundledConfig) return bundledConfig;
   }
+
+  return defaultConfig;
 }
 
 export async function saveSiteConfig(config: SiteConfig) {
