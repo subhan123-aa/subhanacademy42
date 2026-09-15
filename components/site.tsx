@@ -286,7 +286,7 @@ export function HeroVisual({
     ];
 
     return (
-      <div className="relative mx-auto h-[22rem] w-full max-w-[22rem] sm:h-[31rem] sm:max-w-[35rem] lg:h-[34rem]">
+      <div className="relative mx-auto h-[18rem] w-full max-w-[20rem] sm:h-[24rem] sm:max-w-[28rem] lg:h-[27rem] lg:max-w-[30rem]">
         <div className="absolute inset-2 rounded-[2rem] bg-gradient-to-br from-emerald-50 via-white to-lime-50 sm:inset-5 sm:rounded-[2.5rem]" />
         <div className="absolute right-0 top-5 z-20 hidden w-[10.5rem] space-y-2 sm:block">
           {businessTypes.map(({ label, icon: Icon, color }) => (
@@ -296,10 +296,10 @@ export function HeroVisual({
             </div>
           ))}
         </div>
-        <div className="absolute left-1/2 top-0 z-10 aspect-square w-[min(78vw,18rem)] -translate-x-1/2 sm:top-3 sm:h-[29rem] sm:w-[22rem] sm:aspect-auto">
+        <div className="absolute left-1/2 top-0 z-10 aspect-square w-[min(72vw,16rem)] -translate-x-1/2 sm:top-3 sm:h-[22rem] sm:w-[18rem] sm:aspect-auto lg:h-[25rem] lg:w-[19rem]">
           <img src="/images/mentor-subhan.png" alt="Subhan Academy mentor" className="h-full w-full object-contain object-top [mask-image:linear-gradient(to_bottom,black_78%,transparent_100%)]" />
         </div>
-        <div className="absolute bottom-1 left-1/2 z-20 h-[5.5rem] w-[min(84vw,18rem)] -translate-x-1/2 rounded-[1rem] border-4 border-slate-200 bg-slate-800 p-1 shadow-[0_18px_30px_rgba(15,23,42,0.2)] sm:bottom-5 sm:h-32 sm:w-[22rem] sm:rounded-[1.15rem] sm:shadow-[0_22px_36px_rgba(15,23,42,0.24)]">
+        <div className="absolute bottom-1 left-1/2 z-20 h-[5rem] w-[min(80vw,16rem)] -translate-x-1/2 rounded-[1rem] border-4 border-slate-200 bg-slate-800 p-1 shadow-[0_18px_30px_rgba(15,23,42,0.2)] sm:bottom-4 sm:h-28 sm:w-[18rem] sm:rounded-[1.15rem] sm:shadow-[0_22px_36px_rgba(15,23,42,0.24)] lg:h-[7.5rem] lg:w-[20rem]">
           <div className="flex h-full items-center justify-center overflow-hidden rounded-lg bg-gradient-to-br from-white via-emerald-50 to-emerald-100">
             <div className="text-center font-serif text-sm font-semibold leading-5 text-slate-700 sm:text-base">Ideas<br />Planning<br />Execution<br /><span className="text-brand-600">Growth</span></div>
           </div>
