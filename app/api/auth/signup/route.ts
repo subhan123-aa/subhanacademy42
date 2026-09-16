@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { authSchema } from "@/lib/schemas";
 import { getStore, saveStore } from "@/lib/data";
-import { hashPassword, signSession } from "@/lib/auth";
+import { hashPassword, sessionCookieOptions, signSession } from "@/lib/auth";
 import crypto from "crypto";
 
 export async function POST(req: NextRequest) {
@@ -32,10 +32,7 @@ export async function POST(req: NextRequest) {
     const isHttps = !isLocalhost && (req.nextUrl.protocol === "https:" || forwardedProto.includes("https") || process.env.NODE_ENV === "production");
     const response = NextResponse.json({ message: "Account created successfully.", nextUrl: "/student/dashboard", token });
     response.cookies.set("subhan_session", token, {
-      httpOnly: true,
-      sameSite: "lax",
-      secure: isHttps,
-      path: "/",
+      ...sessionCookieOptions(req.nextUrl.hostname, isHttps),
       maxAge: 60 * 60 * 24 * 7
     });
     return response;

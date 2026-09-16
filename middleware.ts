@@ -3,16 +3,13 @@ import { createServerClient } from "@supabase/ssr";
 
 const SESSION_COOKIE = "subhan_session";
 
-function getSessionSecret() {
+function getSessionSecret(): string | null {
   const raw = process.env.SESSION_SECRET?.trim();
   if (raw) {
     const unquoted = raw.replace(/^["']|["']$/g, "").trim();
     if (unquoted) return unquoted;
   }
-  // Fallback to a deterministic value (like Supabase URL) if SESSION_SECRET is missing in production,
-  // to prevent login crashes on live sites that missed configuring this variable.
-  const fallbackKey = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || "subhan-academy-default-session-secret-key-32ch";
-  return fallbackKey.trim();
+  return null;
 }
 
 function decodeBase64Url(value: string) {
@@ -79,33 +76,26 @@ async function verifyToken(rawToken?: string | null) {
   if (!payload || !signature || rest.length > 0) return null;
 
   try {
-    const primarySecret = getSessionSecret();
-    const rawSecret = process.env.SESSION_SECRET?.trim();
-    const fallbackSecret = "subhan-academy-default-session-secret-key-32ch";
-    const secretsToTry = Array.from(new Set([primarySecret, rawSecret, fallbackSecret].filter(Boolean) as string[]));
+    const sessionSecret = getSessionSecret();
+    if (!sessionSecret) return null;
 
     const actual = decodeBase64Url(signature);
     let valid = false;
 
-    for (const secret of secretsToTry) {
-      const key = await crypto.subtle.importKey(
-        "raw",
-        new TextEncoder().encode(secret),
-        { name: "HMAC", hash: "SHA-256" },
-        false,
-        ["sign"]
-      );
-      const expected = new Uint8Array(await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(payload)));
-      if (expected.length !== actual.length) continue;
-
+    const key = await crypto.subtle.importKey(
+      "raw",
+      new TextEncoder().encode(sessionSecret),
+      { name: "HMAC", hash: "SHA-256" },
+      false,
+      ["sign"]
+    );
+    const expected = new Uint8Array(await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(payload)));
+    if (expected.length === actual.length) {
       let difference = 0;
       for (let index = 0; index < expected.length; index += 1) {
         difference |= expected[index] ^ actual[index];
       }
-      if (difference === 0) {
-        valid = true;
-        break;
-      }
+      valid = difference === 0;
     }
 
     if (!valid) return null;

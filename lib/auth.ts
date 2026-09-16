@@ -13,16 +13,13 @@ export function cleanToken(token?: string | null): string | null {
   return cleaned || null;
 }
 
-function getSessionSecret() {
+export function getSessionSecret(): string | null {
   const raw = process.env.SESSION_SECRET?.trim();
   if (raw) {
     const unquoted = raw.replace(/^["']|["']$/g, "").trim();
     if (unquoted) return unquoted;
   }
-  // Fallback to a deterministic value (like Supabase URL) if SESSION_SECRET is missing in production,
-  // to prevent login crashes on live sites that missed configuring this variable.
-  const fallbackKey = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || "subhan-academy-default-session-secret-key-32ch";
-  return fallbackKey.trim();
+  return null;
 }
 
 function base64Url(input: Buffer | string) {
@@ -119,7 +116,10 @@ export function verifyPassword(password: string, stored?: string | null) {
 }
 
 export function signSession(user: Pick<User, "id" | "email" | "role" | "name">) {
-  const SESSION_SECRET = getSessionSecret();
+  const sessionSecret = getSessionSecret();
+  if (!sessionSecret) {
+    throw new Error("Authentication is not configured. Set SESSION_SECRET in this environment.");
+  }
   const payload = base64Url(
     JSON.stringify({
       sub: user.id,
@@ -129,7 +129,7 @@ export function signSession(user: Pick<User, "id" | "email" | "role" | "name">) 
       exp: Date.now() + 1000 * 60 * 60 * 24 * 7
     })
   );
-  const signature = crypto.createHmac("sha256", SESSION_SECRET).update(payload).digest("base64url");
+  const signature = crypto.createHmac("sha256", sessionSecret).update(payload).digest("base64url");
   return `${payload}.${signature}`;
 }
 
@@ -140,18 +140,13 @@ export function verifySession(rawToken?: string | null) {
   if (!payload || !signature) return null;
 
   try {
-    const primarySecret = getSessionSecret();
-    const rawSecret = process.env.SESSION_SECRET?.trim();
-    const fallbackSecret = "subhan-academy-default-session-secret-key-32ch";
-    const secretsToTry = Array.from(new Set([primarySecret, rawSecret, fallbackSecret].filter(Boolean) as string[]));
+    const sessionSecret = getSessionSecret();
+    if (!sessionSecret) return null;
 
     let valid = false;
-    for (const secret of secretsToTry) {
-      const expected = crypto.createHmac("sha256", secret).update(payload).digest("base64url");
-      if (signature.length === expected.length && crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected))) {
-        valid = true;
-        break;
-      }
+    const expected = crypto.createHmac("sha256", sessionSecret).update(payload).digest("base64url");
+    if (signature.length === expected.length && crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected))) {
+      valid = true;
     }
 
     if (!valid) return null;
@@ -172,4 +167,21 @@ export function verifySession(rawToken?: string | null) {
 
 export function authCookieName() {
   return SESSION_COOKIE;
+}
+
+/**
+ * Keep the session available on the canonical domain and its www alias, while
+ * leaving preview and localhost cookies host-only.
+ */
+export function sessionCookieOptions(hostname: string, secure: boolean) {
+  const normalizedHost = hostname.toLowerCase().replace(/\.$/, "");
+  const isProductionDomain = normalizedHost === "subhanacademy.in" || normalizedHost === "www.subhanacademy.in";
+
+  return {
+    httpOnly: true,
+    sameSite: "lax" as const,
+    secure,
+    path: "/",
+    ...(isProductionDomain ? { domain: ".subhanacademy.in" } : {})
+  };
 }

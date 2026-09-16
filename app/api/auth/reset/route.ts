@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { resetSchema } from "@/lib/schemas";
 import { getStore, saveStore } from "@/lib/data";
-import { hashPassword, signSession } from "@/lib/auth";
+import { hashPassword, sessionCookieOptions, signSession } from "@/lib/auth";
 
 export async function POST(req: NextRequest) {
   try {
@@ -29,10 +29,7 @@ export async function POST(req: NextRequest) {
     const isHttps = !isLocalhost && (req.nextUrl.protocol === "https:" || forwardedProto.includes("https") || process.env.NODE_ENV === "production");
     const response = NextResponse.json({ message: "Password updated successfully.", nextUrl: user.role === "admin" ? "/admin" : "/student/dashboard", token });
     response.cookies.set("subhan_session", token, {
-      httpOnly: true,
-      sameSite: "lax",
-      secure: isHttps,
-      path: "/",
+      ...sessionCookieOptions(req.nextUrl.hostname, isHttps),
       maxAge: 60 * 60 * 24 * 7
     });
     return response;

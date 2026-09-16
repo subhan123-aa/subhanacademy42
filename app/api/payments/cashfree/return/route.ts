@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getStore } from "@/lib/data";
 import { completeCashfreeOrder, isCashfreeOrderPaid } from "@/lib/cashfree";
-import { authCookieName, signSession } from "@/lib/auth";
+import { authCookieName, sessionCookieOptions, signSession } from "@/lib/auth";
 
 function redirectToCheckout(
   req: NextRequest,
@@ -78,10 +78,7 @@ export async function GET(req: NextRequest) {
         const isLocalhost = ["localhost", "127.0.0.1", "::1"].includes(req.nextUrl.hostname);
         const isHttps = !isLocalhost && (req.nextUrl.protocol === "https:" || forwardedProto.includes("https") || process.env.NODE_ENV === "production");
         response.cookies.set(authCookieName(), token, {
-          httpOnly: true,
-          sameSite: "lax",
-          secure: isHttps,
-          path: "/",
+          ...sessionCookieOptions(req.nextUrl.hostname, isHttps),
           maxAge: 60 * 60 * 24 * 7
         });
       }
