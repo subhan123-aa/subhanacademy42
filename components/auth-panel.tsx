@@ -95,12 +95,6 @@ export function AuthPanel({
               } catch {
                 // Ignore storage quota or disabled storage
               }
-              try {
-                const isHttps = window.location.protocol === "https:";
-                document.cookie = `subhan_session=${encodeURIComponent(data.token)}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax${isHttps ? "; Secure" : ""}`;
-              } catch {
-                // Ignore cookie setting errors
-              }
             }
             toast.success(data.message || "Success");
             const targetUrl = data.nextUrl || nextUrl;
