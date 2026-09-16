@@ -468,19 +468,16 @@ export function AdminConsole({
           description="Manage course details and video lessons in one focused workspace."
           icon={<BookOpen className="h-5 w-5" />}
         />
-        <div className="mt-5 grid gap-6 xl:grid-cols-2">
+        <div className="mt-5 max-w-3xl">
           <form
             key={selectedCourse?.id ?? "new-course"}
-            className="grid gap-3 rounded-[1.75rem] border border-slate-200 bg-slate-50 p-5"
+            className="grid gap-4 rounded-[1.75rem] border border-slate-200 bg-slate-50 p-6"
             onSubmit={async (event) => {
               event.preventDefault();
               setBusyKey("course");
               try {
                 const formData = new FormData(event.currentTarget);
-                const thumbnailFile = formData.get("thumbnailFile");
-                const thumbnail = thumbnailFile instanceof File && thumbnailFile.size
-                  ? await fileToDataUrl(thumbnailFile)
-                  : selectedCourse?.thumbnail ?? "/images/course-thumb.svg";
+                
                 const existingModules = selectedCourse?.modules ?? [];
                 const firstModule = existingModules[0] ?? {
                   id: crypto.randomUUID(),
@@ -489,6 +486,21 @@ export function AdminConsole({
                   order: 1,
                   lessons: []
                 };
+
+                const youtubeVideoUrl = safeString(formData.get("videoUrl"));
+                
+                const existingLessons = firstModule.lessons ?? [];
+                const firstLesson = existingLessons[0] ?? {
+                  id: crypto.randomUUID(),
+                  title: safeString(formData.get("title")) || "Course Video",
+                  duration: "0 min",
+                  videoUrl: youtubeVideoUrl,
+                  summary: "Main video"
+                };
+                
+                const updatedFirstLesson = { ...firstLesson, videoUrl: youtubeVideoUrl };
+                const updatedLessons = [updatedFirstLesson, ...existingLessons.slice(1)];
+                
                 const payload = {
                   id: selectedCourse?.id,
                   slug: selectedCourse?.slug ?? safeString(formData.get("title")).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, ""),
@@ -497,13 +509,13 @@ export function AdminConsole({
                   price: selectedCourse?.price ?? 0,
                   oldPrice: selectedCourse?.oldPrice ?? 0,
                   showDiscountDisplay: selectedCourse?.showDiscountDisplay ?? true,
-                  thumbnail,
-                  published: formData.get("published") === "on",
+                  thumbnail: selectedCourse?.thumbnail ?? "/images/course-thumb.svg",
+                  published: selectedCourse?.published ?? true,
                   hours: selectedCourse?.hours ?? 1,
                   previewLessonId: selectedCourse?.previewLessonId,
                   includes: selectedCourse?.includes?.length ? selectedCourse.includes : ["Lifetime access"],
                   outcomes: selectedCourse?.outcomes?.length ? selectedCourse.outcomes : ["Practical course lessons"],
-                  modules: existingModules.length ? [{ ...firstModule, lessons: lessonDraft }] .concat(existingModules.slice(1)) : [{ ...firstModule, lessons: lessonDraft }]
+                  modules: existingModules.length ? [{ ...firstModule, lessons: updatedLessons }] .concat(existingModules.slice(1)) : [{ ...firstModule, lessons: updatedLessons }]
                 };
                 await api("/api/admin/courses", "POST", payload);
                 toast.success("Course saved");
@@ -517,34 +529,30 @@ export function AdminConsole({
           >
             <label className="grid gap-2">
               <span className="text-sm font-medium text-slate-700">Select course</span>
-              <select value={selectedCourse?.id ?? ""} onChange={(event) => setSelectedCourseId(event.target.value)} className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm">
+              <select value={selectedCourse?.id ?? ""} onChange={(event) => setSelectedCourseId(event.target.value)} className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm outline-none transition focus:border-brand-300">
                 {courses.map((course) => <option key={course.id} value={course.id}>{course.title}</option>)}
               </select>
             </label>
             <label className="grid gap-2">
               <span className="text-sm font-medium text-slate-700">Course Title</span>
-              <input name="title" defaultValue={selectedCourse?.title} className="h-11 rounded-2xl border border-slate-200 px-4" required />
+              <input name="title" defaultValue={selectedCourse?.title} className="h-11 rounded-2xl border border-slate-200 bg-white px-4 outline-none transition focus:border-brand-300" required />
             </label>
             <label className="grid gap-2">
               <span className="text-sm font-medium text-slate-700">Course Description</span>
-              <textarea name="subtitle" defaultValue={selectedCourse?.subtitle} className="min-h-32 rounded-2xl border border-slate-200 px-4 py-3" required />
+              <textarea name="subtitle" defaultValue={selectedCourse?.subtitle} className="min-h-32 rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none transition focus:border-brand-300" required />
             </label>
             <label className="grid gap-2">
-              <span className="text-sm font-medium text-slate-700">Course Thumbnail Upload</span>
-              <input name="thumbnailFile" type="file" accept="image/*" className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm" />
-              <span className="text-xs text-slate-500">Current: {selectedCourse?.thumbnail ?? "No thumbnail"}</span>
+              <span className="text-sm font-medium text-slate-700">YouTube Video Link</span>
+              <input name="videoUrl" type="url" defaultValue={selectedCourse?.modules?.[0]?.lessons?.[0]?.videoUrl} placeholder="https://www.youtube.com/watch?v=..." className="h-11 rounded-2xl border border-slate-200 bg-white px-4 outline-none transition focus:border-brand-300" required />
             </label>
-            <label className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-700">
-              <input name="published" type="checkbox" defaultChecked={selectedCourse?.published} />
-              Publish course
-            </label>
-            <div className="flex flex-wrap gap-3">
+            
+            <div className="mt-2 flex flex-wrap gap-3">
               <button
                 type="submit"
                 disabled={busyKey === "course"}
-                className="inline-flex h-11 items-center justify-center gap-2 rounded-full bg-brand-600 px-5 text-sm font-semibold text-white hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-70"
+                className="inline-flex h-11 items-center justify-center gap-2 rounded-full bg-brand-600 px-6 text-sm font-semibold text-white transition hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-70"
               >
-                {busyKey === "course" ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowRight className="h-4 w-4" />}
+                {busyKey === "course" ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
                 Save Course
               </button>
               <button
@@ -564,15 +572,13 @@ export function AdminConsole({
                   }
                 }}
                 disabled={busyKey === "course-delete"}
-                className="inline-flex h-11 items-center justify-center gap-2 rounded-full border border-red-200 bg-red-50 px-5 text-sm font-semibold text-red-700 disabled:cursor-not-allowed disabled:opacity-70"
+                className="inline-flex h-11 items-center justify-center gap-2 rounded-full border border-red-200 bg-red-50 px-6 text-sm font-semibold text-red-700 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-70"
               >
-                <Trash2 className="h-4 w-4" />
+                {busyKey === "course-delete" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
                 Delete course
               </button>
             </div>
           </form>
-
-          <LessonEditor course={selectedCourse} onChange={setLessonDraft} />
         </div>
       </section>
       </AdminSection>

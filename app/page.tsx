@@ -1,14 +1,12 @@
 ﻿import { BookOpen, CheckCircle2, Lightbulb, Route, Users, type LucideIcon } from "lucide-react";
-import { Badge, ButtonLink, Container, Footer, HeroVisual, HighlightRow, Navbar, SectionHeading } from "@/components/site";
+import Image from "next/image";
+import { ArrowRight, Coffee, Dumbbell, ShoppingBasket, Store, UsersRound } from "lucide-react";
+import { ButtonLink, Container, Footer, Navbar, SectionHeading } from "@/components/site";
 import CourseCurriculum from "@/components/course-curriculum";
-import { AppShowcaseSection } from "@/components/app-showcase";
 import { MentorCard } from "@/components/mentor-card";
-import { DashboardShowcase } from "@/components/dashboard-showcase";
 import TestimonialsCarousel from "@/components/testimonials-carousel";
 import { getStore } from "@/lib/data";
 import { formatCurrency } from "@/lib/utils";
-import { getSiteConfig } from "@/lib/site-config";
-import { getActivePreviewVideo } from "@/lib/queries";
 import { getCoursePricing } from "@/lib/pricing";
 
 export const dynamic = "force-dynamic";
@@ -21,144 +19,102 @@ const whyLearnFeatures: { icon: LucideIcon; title: string; description: string }
 ];
 
 export default async function HomePage() {
-  const [courses, siteConfig, previewVideo, appShowcaseScreenshots] = await Promise.all([
-    getStore("courses"),
-    getSiteConfig(),
-    getActivePreviewVideo(),
-    getStore("appShowcaseScreenshots")
-  ]);
+  const courses = await getStore("courses");
 
   const course = courses[0] ?? { price: 0, oldPrice: 0, showDiscountDisplay: true };
   const pricing = getCoursePricing(course);
-  const dashboardShowcaseImage = siteConfig.dashboardShowcaseImage || "/images/sabjihub-dashboard-showcase.svg";
 
   return (
     <div className="min-h-screen">
       <Navbar price={pricing.offerPrice} ctaLabel="Enroll Now" />
 
       <main>
-        <section className="relative overflow-hidden">
-          <div className="absolute inset-0 grid-dots opacity-30" />
-          <Container className="relative py-5 sm:py-8 lg:max-w-[1180px] lg:py-8">
-            <div className="md:hidden">
-              <div className="overflow-hidden rounded-[2.15rem] border border-brand-100 bg-gradient-to-b from-brand-50/80 via-white to-emerald-50/55 shadow-[0_24px_70px_rgba(22,163,74,0.10)]">
-                <div className="px-4 pb-5 pt-4">
-                  <div className="max-w-2xl">
-                    <Badge>Premium ed-tech for local business founders</Badge>
-                    <h1 className="mt-5 max-w-none text-balance text-[clamp(2.2rem,9.8vw,2.8rem)] font-semibold leading-[1.02] tracking-tight text-slate-950">
-                      {siteConfig.heroHeadline}
-                    </h1>
-                    <p className="mt-4 max-w-xl text-[1rem] leading-7 text-slate-600">
-                      {siteConfig.heroSubheadline}
-                    </p>
-
-                    <div className="mt-7 grid gap-3">
-                      <ButtonLink
-                        href="/checkout?course=sabjihub-blueprint"
-                        className="inline-flex h-12 w-full max-w-sm items-center justify-center gap-2 rounded-full bg-brand-500 px-5 text-sm font-semibold text-white shadow-[0_12px_28px_rgba(22,163,74,0.26)] transition-transform hover:bg-brand-600 active:scale-[0.99] sm:h-12 sm:px-6"
-                      >
-                        <span>Enroll Now – Launch Offer</span>
-                        <span aria-hidden="true" className="text-lg leading-none">→</span>
-                      </ButtonLink>
-                      <ButtonLink
-                        href="#preview"
-                        variant="secondary"
-                        className="w-full max-w-sm rounded-full border-brand-200 py-4 text-sm active:scale-[0.99] sm:py-3.5"
-                      >
-                        Watch Free Preview
-                      </ButtonLink>
-                    </div>
-
-                    <div className="mt-7">
-                      <HeroVisual previewVideo={previewVideo} variant="mobile" />
-                    </div>
-
-                    <div className="mt-7 grid gap-2.5">
-                      {[
-                        "Step-by-Step Training",
-                        "Real Business Case Study",
-                        "App Development + Marketing",
-                        "Local Orders & Growth Strategy"
-                      ].map((item) => (
-                        <div
-                          key={item}
-                          className="flex w-full items-center gap-2.5 rounded-2xl border border-brand-100 bg-white px-3.5 py-3.5 text-[13px] font-medium text-brand-800 shadow-soft"
-                        >
-                          <CheckCircle2 className="h-4 w-4 shrink-0 text-brand-600" />
-                          <span>{item}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
+        <section className="relative overflow-hidden bg-white">
+          <div className="pointer-events-none absolute -left-24 top-48 h-80 w-80 rounded-full bg-emerald-50/70 blur-3xl" />
+          <div className="pointer-events-none absolute right-0 top-0 h-[32rem] w-[42rem] rounded-full bg-gradient-to-bl from-emerald-50/80 via-green-50/35 to-transparent blur-2xl" />
+          <Container className="relative grid max-w-[1180px] gap-12 py-12 sm:py-16 lg:grid-cols-[0.91fr_1.09fr] lg:items-center lg:gap-6 lg:py-[4.8rem]">
+            <div className="relative z-10 max-w-[35rem]">
+              <div className="inline-flex items-center gap-2 rounded-full border border-emerald-100 bg-emerald-50/80 px-3.5 py-1.5 text-[11px] font-semibold text-brand-700 shadow-sm">
+                <span className="h-1.5 w-1.5 rounded-full bg-brand-500" />
+                Practical Business Learning
               </div>
-            </div>
-
-            <div className="hidden md:grid gap-10 py-10 lg:grid-cols-[0.98fr_1.02fr] lg:items-center lg:py-10">
-              <div className="max-w-xl">
-                <Badge>Premium ed-tech for local business founders</Badge>
-                <h1 className="mt-5 max-w-[36rem] text-[clamp(2.35rem,3.8vw,3.5rem)] font-semibold tracking-tight text-slate-950 leading-[1.03]">
-                  {siteConfig.heroHeadline}
-                </h1>
-                <p className="mt-5 max-w-xl text-[0.98rem] leading-7 text-slate-600 lg:text-[1.05rem]">
-                  {siteConfig.heroSubheadline}
-                </p>
-
-                <div className="mt-7 flex flex-wrap gap-3 sm:gap-4">
-                  <ButtonLink
-                    href="/checkout?course=sabjihub-blueprint"
-                    className="inline-flex h-11 items-center justify-center gap-2 rounded-full bg-brand-500 px-5 text-sm font-semibold text-white shadow-[0_12px_28px_rgba(22,163,74,0.26)] transition-transform hover:bg-brand-600 active:scale-[0.99] sm:h-12 sm:px-6"
-                  >
-                    <span>Enroll Now – Launch Offer</span>
-                    <span aria-hidden="true" className="text-lg leading-none">→</span>
-                  </ButtonLink>
-                  <ButtonLink href="#preview" variant="secondary" className="h-11 px-5 text-sm sm:h-12 sm:px-6">
-                    Watch Free Preview
-                  </ButtonLink>
-                </div>
-
-                <div className="mt-7">
-                  <HighlightRow
-                    items={[
-                      "Step-by-Step Training",
-                      "Real Business Case Study",
-                      "App Development + Marketing",
-                      "Local Orders & Growth Strategy"
-                    ]}
-                  />
-                </div>
-              </div>
-
-              <HeroVisual previewVideo={previewVideo} />
-            </div>
-          </Container>
-        </section>
-        <section className="border-y border-emerald-100 bg-white py-14 sm:py-16">
-          <Container>
-            <div className="mx-auto max-w-3xl text-center">
-              <span className="inline-flex rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-brand-700">
-                REAL SABJIHUB DASHBOARD
-              </span>
-              <h2 className="mt-4 text-balance text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl">
-                See the Business Behind the Course
-              </h2>
-              <p className="mt-4 text-base leading-7 text-slate-600">
-                Get a real look at the dashboard, operations and tools behind SabjiHub.
+              <h1 className="mt-6 max-w-[35rem] text-[clamp(3.15rem,6vw,5.25rem)] font-semibold leading-[0.97] tracking-[-0.055em] text-slate-950">
+                Real Business<br />
+                Education<br />
+                <span className="text-brand-600">for Real Life.</span>
+              </h1>
+              <p className="mt-7 max-w-[31rem] text-[15px] leading-7 text-slate-600 sm:text-base">
+                Step-by-step video course to start, manage and grow your own local business, whatever your business idea.
               </p>
+
+              <div className="mt-7 grid max-w-[34rem] gap-x-5 gap-y-3 sm:grid-cols-2">
+                {[
+                  [BookOpen, "Step-by-Step Video Lessons"],
+                  [Route, "Real Examples You Can Apply"],
+                  [Lightbulb, "Practical Business Guidance"],
+                  [UsersRound, "Learn at Your Own Pace"]
+                ].map(([Icon, label]) => (
+                  <div key={label as string} className="flex items-center gap-2.5 text-[11px] font-medium text-slate-700 sm:text-xs">
+                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-emerald-100 bg-white text-brand-600 shadow-sm">
+                      <Icon className="h-3.5 w-3.5" />
+                    </span>
+                    <span>{label as string}</span>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-8 flex flex-wrap gap-3">
+                <ButtonLink href="/checkout?course=sabjihub-blueprint" className="h-11 px-5 text-sm sm:h-12 sm:px-6">
+                  Enroll Now
+                </ButtonLink>
+                <ButtonLink href="#how-it-works" variant="secondary" className="h-11 border-emerald-200 px-5 text-sm text-slate-700 sm:h-12 sm:px-6">
+                  View Course Curriculum
+                </ButtonLink>
+              </div>
             </div>
 
-            <div className="mx-auto mt-10 max-w-6xl">
-              <DashboardShowcase
-                src={dashboardShowcaseImage}
-                alt="SabjiHub admin dashboard screenshot"
-                updatedText="Saved and managed through Website Content"
-              />
+            <div className="relative mx-auto h-[30rem] w-full max-w-[39rem] sm:h-[37rem] lg:h-[39rem]">
+              <div className="absolute left-[17%] top-[7%] h-[78%] w-[66%] rounded-[2.75rem] bg-gradient-to-br from-emerald-50 via-green-100/70 to-emerald-50" />
+              <div className="absolute left-[21%] top-[6%] h-[73%] w-[56%] overflow-hidden rounded-[1.7rem] border border-white bg-slate-100 shadow-[0_24px_55px_rgba(15,23,42,0.14)] sm:rounded-[2rem]">
+                <Image src="/images/mentor-subhan.png" alt="Subhan Academy mentor" fill priority sizes="(max-width: 1024px) 55vw, 390px" className="object-cover object-top" />
+              </div>
+
+              <div className="absolute right-0 top-[7%] z-20 grid w-[9.5rem] gap-2 sm:right-[1%] sm:w-[10.5rem] sm:gap-2.5">
+                {[
+                  [ShoppingBasket, "Grocery Store", "bg-emerald-50 text-brand-600"],
+                  [Coffee, "Cafe / Tea Stall", "bg-orange-50 text-orange-500"],
+                  [Store, "Retail Store", "bg-sky-50 text-sky-600"],
+                  [Dumbbell, "Gym / Fitness", "bg-violet-50 text-violet-500"],
+                  [Users, "And Many More...", "bg-pink-50 text-pink-500"]
+                ].map(([Icon, label, color]) => (
+                  <div key={label as string} className="flex items-center gap-2 rounded-xl border border-slate-100 bg-white/95 px-2.5 py-2.5 text-[9px] font-medium text-slate-700 shadow-[0_8px_22px_rgba(15,23,42,0.08)] sm:px-3 sm:text-[10px]">
+                    <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-lg ${color as string}`}><Icon className="h-3.5 w-3.5" /></span>
+                    <span>{label as string}</span>
+                  </div>
+                ))}
+              </div>
+
+              <div className="absolute bottom-[14%] left-[21%] z-20 w-[56%] rounded-xl border-2 border-slate-800 bg-gradient-to-br from-white via-emerald-50 to-emerald-100 px-3 py-2.5 text-center shadow-[0_16px_32px_rgba(15,23,42,0.18)] sm:rounded-2xl sm:px-5 sm:py-3">
+                <div className="grid grid-cols-4 text-[11px] font-semibold leading-5 text-slate-700 sm:text-sm">
+                  <span>Ideas</span><span>Planning</span><span>Execution</span><span className="text-brand-600">Growth</span>
+                </div>
+              </div>
+
+              <div className="absolute bottom-[10%] left-0 z-20 rounded-xl border border-slate-100 bg-white px-3 py-2 text-[9px] font-semibold leading-4 text-slate-700 shadow-[0_10px_28px_rgba(15,23,42,0.10)] sm:bottom-[12%] sm:rounded-2xl sm:px-4 sm:py-3 sm:text-[10px]">
+                <span className="block text-slate-500">Same</span>
+                <span className="block">Framework.</span>
+                <span className="block text-brand-600">Any Business.</span>
+              </div>
+
+              <div className="absolute bottom-[5%] right-[-1%] z-20 grid w-[5.1rem] gap-1.5 sm:right-[-2%] sm:w-[6rem]">
+                {["Strategy", "Marketing", "Operations", "Customers", "Growth"].map((item) => (
+                  <div key={item} className="rounded-md border border-slate-100 bg-white/95 px-2 py-1 text-[8px] font-medium text-slate-600 shadow-sm sm:text-[9px]">{item}</div>
+                ))}
+              </div>
+              <ArrowRight className="absolute bottom-[1%] left-[48%] h-5 w-5 rotate-[-35deg] text-brand-400/60" />
             </div>
           </Container>
         </section>
-
-        <AppShowcaseSection screenshots={appShowcaseScreenshots} />
-
         <section className="border-y border-slate-200 bg-white py-16 sm:py-20">
           <Container>
             <div className="mx-auto max-w-3xl text-center">
