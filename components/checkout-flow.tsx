@@ -379,7 +379,7 @@ export function CheckoutFlow({
   const savingsAmount = pricing.hasDiscount ? pricing.discountAmount : 0;
 
   return (
-    <div className="grid min-w-0 gap-6 overflow-x-hidden">
+    <div className="grid gap-6">
       <Container className="flex items-center justify-center py-1 sm:py-2">
         <div className="flex items-center justify-center gap-2 sm:gap-2.5" aria-label="Checkout progress">
           <span
@@ -506,9 +506,9 @@ export function CheckoutFlow({
           </div>
         </Container>
       ) : (
-        <Container className="min-w-0 max-w-6xl">
-          <div className="grid min-w-0 w-full max-w-full gap-4 sm:gap-5 lg:grid-cols-[1.65fr_1fr] xl:gap-8">
-            <div className="order-2 min-w-0 w-full max-w-full rounded-[1.5rem] border border-slate-200 bg-white p-5 shadow-sm sm:p-7 lg:order-1 lg:p-9">
+        <Container className="max-w-6xl">
+          <div className="grid gap-4 sm:gap-5 lg:grid-cols-[1.65fr_1fr] xl:gap-8">
+            <div className="order-2 rounded-[1.5rem] border border-slate-200 bg-white p-5 shadow-sm sm:p-7 lg:order-1 lg:p-9">
               <div>
                 <h1 className="text-[1.35rem] font-bold tracking-tight text-slate-950 sm:text-2xl lg:text-[1.875rem]">Complete Your Enrollment</h1>
                 <p className="mt-1.5 text-sm text-slate-600 sm:mt-2">Enter your details to get lifetime access</p>
@@ -693,7 +693,7 @@ export function CheckoutFlow({
               </form>
             </div>
 
-            <aside className="order-1 min-w-0 w-full max-w-full overflow-hidden rounded-[1.75rem] border border-slate-900/5 bg-slate-950 p-5 text-slate-100 shadow-[0_20px_60px_rgba(15,23,42,0.16)] sm:p-7 lg:order-2 lg:p-8">
+            <aside className="order-1 rounded-[1.75rem] border border-slate-900/5 bg-slate-950 p-5 text-slate-100 shadow-[0_20px_60px_rgba(15,23,42,0.16)] sm:p-7 lg:order-2 lg:p-8">
               <div>
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">

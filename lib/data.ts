@@ -77,24 +77,7 @@ const tableMap: Record<StoreKey, string> = {
 const memoryStore: Partial<StoreMap> = {};
 const memoryStoreTimestamp: Partial<Record<StoreKey, number>> = {};
 const CACHE_TTL_MS = 5000; // 5 seconds cache in serverless memory to allow multi-instance freshness
-const SUPABASE_READ_TIMEOUT_MS = 1500;
 let seedingPromise: Promise<void> | null = null;
-
-function withTimeout<T>(promise: PromiseLike<T>, timeoutMs: number): Promise<T> {
-  return new Promise((resolve, reject) => {
-    const timeout = setTimeout(() => reject(new Error(`Request timed out after ${timeoutMs}ms`)), timeoutMs);
-    promise.then(
-      (value) => {
-        clearTimeout(timeout);
-        resolve(value);
-      },
-      (error) => {
-        clearTimeout(timeout);
-        reject(error);
-      }
-    );
-  });
-}
 
 async function ensureDataDir() {
   try {
@@ -358,10 +341,7 @@ export async function getStore<K extends StoreKey>(key: K): Promise<StoreMap[K]>
     try {
       const supabase = createSupabaseAdminClient();
       const tableName = tableMap[key];
-      const { data, error } = await withTimeout(
-        supabase.from(tableName).select("*"),
-        SUPABASE_READ_TIMEOUT_MS
-      );
+      const { data, error } = await supabase.from(tableName).select("*");
 
       if (error) {
         console.warn(`[supabase] getStore(${key}) failed: ${error.message}. Falling back to file store.`);
@@ -384,9 +364,27 @@ export async function getStore<K extends StoreKey>(key: K): Promise<StoreMap[K]>
         // Merge in seed users/courses if any are missing from the query
         if (key === "users" && Array.isArray(fallback)) {
           const loadedUsers = normalized as unknown as User[];
+          const adminEmail = (process.env.ADMIN_EMAIL || "admin@subhanacademy.in").toLowerCase().trim();
+
           for (const seedUser of fallback as unknown as User[]) {
-            if (!loadedUsers.some((u) => u.email.toLowerCase() === seedUser.email.toLowerCase())) {
+            const existingIdx = loadedUsers.findIndex((u) => u.email.toLowerCase() === seedUser.email.toLowerCase());
+            if (existingIdx === -1) {
               loadedUsers.unshift(seedUser);
+            } else if (seedUser.role === "admin" || seedUser.email.toLowerCase() === adminEmail || seedUser.email.toLowerCase() === "admin@subhanacademy.in") {
+              loadedUsers[existingIdx].role = "admin";
+              loadedUsers[existingIdx].blocked = false;
+              loadedUsers[existingIdx].pendingPayment = false;
+              if (!loadedUsers[existingIdx].passwordHash) {
+                loadedUsers[existingIdx].passwordHash = seedUser.passwordHash;
+              }
+            }
+          }
+
+          for (const user of loadedUsers) {
+            if (user.email.toLowerCase() === adminEmail || user.email.toLowerCase() === "admin@subhanacademy.in") {
+              user.role = "admin";
+              user.blocked = false;
+              user.pendingPayment = false;
             }
           }
         }
@@ -403,6 +401,30 @@ export async function getStore<K extends StoreKey>(key: K): Promise<StoreMap[K]>
   // Fallback to local file store
   const value = await readJson<StoreMap[K]>(files[key], fallback);
   const resolved = (Array.isArray(value) ? value : fallback) as StoreMap[K];
+  if (key === "users" && Array.isArray(resolved)) {
+    const loadedUsers = resolved as unknown as User[];
+    const adminEmail = (process.env.ADMIN_EMAIL || "admin@subhanacademy.in").toLowerCase().trim();
+    for (const user of loadedUsers) {
+      if (user.email.toLowerCase() === adminEmail || user.email.toLowerCase() === "admin@subhanacademy.in") {
+        user.role = "admin";
+        user.blocked = false;
+        user.pendingPayment = false;
+      }
+    }
+    if (!loadedUsers.some((u) => u.email.toLowerCase() === adminEmail || u.email.toLowerCase() === "admin@subhanacademy.in")) {
+      const fallbackAdmin = (fallback as unknown as User[]).find((u) => u.role === "admin") || {
+        id: "admin-1",
+        name: "Subhan Academy Admin",
+        email: adminEmail,
+        passwordHash: "",
+        role: "admin" as const,
+        createdAt: new Date().toISOString(),
+        blocked: false,
+        pendingPayment: false
+      };
+      loadedUsers.unshift(fallbackAdmin);
+    }
+  }
   memoryStore[key] = resolved;
   memoryStoreTimestamp[key] = now;
   return resolved;

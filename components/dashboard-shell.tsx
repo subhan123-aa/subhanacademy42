@@ -5,7 +5,6 @@ import {
   BarChart3,
   BookOpen,
   CircleDollarSign,
-  BadgePercent,
   LayoutDashboard,
   LogOut,
   MessageSquare,
@@ -13,6 +12,7 @@ import {
   PlaySquare,
   Settings,
   ShieldCheck,
+  BadgePercent,
   Star,
   UserRound,
   Wallet

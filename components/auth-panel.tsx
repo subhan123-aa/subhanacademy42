@@ -89,9 +89,26 @@ export function AuthPanel({
             });
             const data = await response.json();
             if (!response.ok) throw new Error(data.error || "Request failed");
+            if (data.token && typeof window !== "undefined") {
+              try {
+                localStorage.setItem("subhan_session", data.token);
+              } catch {
+                // Ignore storage quota or disabled storage
+              }
+              try {
+                const isHttps = window.location.protocol === "https:";
+                document.cookie = `subhan_session=${encodeURIComponent(data.token)}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax${isHttps ? "; Secure" : ""}`;
+              } catch {
+                // Ignore cookie setting errors
+              }
+            }
             toast.success(data.message || "Success");
-            router.push(data.nextUrl || nextUrl);
-            router.refresh();
+            const targetUrl = data.nextUrl || nextUrl;
+            if (typeof window !== "undefined") {
+              window.location.href = targetUrl;
+            } else {
+              router.push(targetUrl);
+            }
           } catch (error) {
             toast.error(error instanceof Error ? error.message : "Something went wrong.");
           } finally {

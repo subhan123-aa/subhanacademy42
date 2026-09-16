@@ -1,7 +1,9 @@
 ﻿import { BookOpen, CheckCircle2, Lightbulb, Route, Users, type LucideIcon } from "lucide-react";
-import { ButtonLink, Container, Footer, HeroVisual, Navbar, SectionHeading } from "@/components/site";
+import { Badge, ButtonLink, Container, Footer, HeroVisual, HighlightRow, Navbar, SectionHeading } from "@/components/site";
 import CourseCurriculum from "@/components/course-curriculum";
+import { AppShowcaseSection } from "@/components/app-showcase";
 import { MentorCard } from "@/components/mentor-card";
+import { DashboardShowcase } from "@/components/dashboard-showcase";
 import TestimonialsCarousel from "@/components/testimonials-carousel";
 import { getStore } from "@/lib/data";
 import { formatCurrency } from "@/lib/utils";
@@ -19,64 +21,144 @@ const whyLearnFeatures: { icon: LucideIcon; title: string; description: string }
 ];
 
 export default async function HomePage() {
-  const [courses, siteConfig, previewVideo] = await Promise.all([
+  const [courses, siteConfig, previewVideo, appShowcaseScreenshots] = await Promise.all([
     getStore("courses"),
     getSiteConfig(),
-    getActivePreviewVideo()
+    getActivePreviewVideo(),
+    getStore("appShowcaseScreenshots")
   ]);
 
   const course = courses[0] ?? { price: 0, oldPrice: 0, showDiscountDisplay: true };
   const pricing = getCoursePricing(course);
+  const dashboardShowcaseImage = siteConfig.dashboardShowcaseImage || "/images/sabjihub-dashboard-showcase.svg";
 
   return (
     <div className="min-h-screen">
       <Navbar price={pricing.offerPrice} ctaLabel="Enroll Now" />
 
       <main>
-        <section className="relative overflow-hidden border-b border-emerald-100 bg-gradient-to-br from-white via-white to-emerald-50/60">
-          <div className="absolute inset-0 grid-dots opacity-20" />
-          <Container className="relative py-6 sm:py-10 lg:max-w-[1180px] lg:py-7">
-            <div className="grid items-center gap-5 sm:gap-8 lg:grid-cols-[0.96fr_1.04fr] lg:gap-4">
-              <div className="max-w-[38rem]">
-                <div className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-brand-700">
-                  <span className="h-2 w-2 rounded-full bg-brand-500" />
-                  Practical Business Learning
+        <section className="relative overflow-hidden">
+          <div className="absolute inset-0 grid-dots opacity-30" />
+          <Container className="relative py-5 sm:py-8 lg:max-w-[1180px] lg:py-8">
+            <div className="md:hidden">
+              <div className="overflow-hidden rounded-[2.15rem] border border-brand-100 bg-gradient-to-b from-brand-50/80 via-white to-emerald-50/55 shadow-[0_24px_70px_rgba(22,163,74,0.10)]">
+                <div className="px-4 pb-5 pt-4">
+                  <div className="max-w-2xl">
+                    <Badge>Premium ed-tech for local business founders</Badge>
+                    <h1 className="mt-5 max-w-none text-balance text-[clamp(2.2rem,9.8vw,2.8rem)] font-semibold leading-[1.02] tracking-tight text-slate-950">
+                      {siteConfig.heroHeadline}
+                    </h1>
+                    <p className="mt-4 max-w-xl text-[1rem] leading-7 text-slate-600">
+                      {siteConfig.heroSubheadline}
+                    </p>
+
+                    <div className="mt-7 grid gap-3">
+                      <ButtonLink
+                        href="/checkout?course=sabjihub-blueprint"
+                        className="inline-flex h-12 w-full max-w-sm items-center justify-center gap-2 rounded-full bg-brand-500 px-5 text-sm font-semibold text-white shadow-[0_12px_28px_rgba(22,163,74,0.26)] transition-transform hover:bg-brand-600 active:scale-[0.99] sm:h-12 sm:px-6"
+                      >
+                        <span>Enroll Now – Launch Offer</span>
+                        <span aria-hidden="true" className="text-lg leading-none">→</span>
+                      </ButtonLink>
+                      <ButtonLink
+                        href="#preview"
+                        variant="secondary"
+                        className="w-full max-w-sm rounded-full border-brand-200 py-4 text-sm active:scale-[0.99] sm:py-3.5"
+                      >
+                        Watch Free Preview
+                      </ButtonLink>
+                    </div>
+
+                    <div className="mt-7">
+                      <HeroVisual previewVideo={previewVideo} variant="mobile" />
+                    </div>
+
+                    <div className="mt-7 grid gap-2.5">
+                      {[
+                        "Step-by-Step Training",
+                        "Real Business Case Study",
+                        "App Development + Marketing",
+                        "Local Orders & Growth Strategy"
+                      ].map((item) => (
+                        <div
+                          key={item}
+                          className="flex w-full items-center gap-2.5 rounded-2xl border border-brand-100 bg-white px-3.5 py-3.5 text-[13px] font-medium text-brand-800 shadow-soft"
+                        >
+                          <CheckCircle2 className="h-4 w-4 shrink-0 text-brand-600" />
+                          <span>{item}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 </div>
-                <h1 className="mt-5 max-w-[37rem] text-balance text-[clamp(2.65rem,5.2vw,4.25rem)] font-semibold leading-[0.98] tracking-[-0.03em] text-slate-950">
-                  Real Business Education <span className="text-brand-600">for Real Life.</span>
+              </div>
+            </div>
+
+            <div className="hidden md:grid gap-10 py-10 lg:grid-cols-[0.98fr_1.02fr] lg:items-center lg:py-10">
+              <div className="max-w-xl">
+                <Badge>Premium ed-tech for local business founders</Badge>
+                <h1 className="mt-5 max-w-[36rem] text-[clamp(2.35rem,3.8vw,3.5rem)] font-semibold tracking-tight text-slate-950 leading-[1.03]">
+                  {siteConfig.heroHeadline}
                 </h1>
-                <p className="mt-5 max-w-[31rem] text-[1rem] leading-7 text-slate-600 sm:text-[1.05rem]">
-                  Step-by-step video course to start, manage and grow your own local business, whatever your business idea.
+                <p className="mt-5 max-w-xl text-[0.98rem] leading-7 text-slate-600 lg:text-[1.05rem]">
+                  {siteConfig.heroSubheadline}
                 </p>
 
-                <div className="mt-6 grid max-w-[34rem] grid-cols-2 gap-x-4 gap-y-3 sm:gap-x-6">
-                  {[
-                    [BookOpen, "Step-by-Step Video Lessons"],
-                    [Route, "Real Examples You Can Apply"],
-                    [Lightbulb, "Practical Business Guidance"],
-                    [Users, "Learn at Your Own Pace"]
-                  ].map(([Icon, label]) => (
-                    <div key={label as string} className="flex items-center gap-2 text-[11px] font-semibold leading-4 text-slate-700 sm:text-xs">
-                      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-white text-brand-600 shadow-sm ring-1 ring-emerald-100"><Icon className="h-4 w-4" /></span>
-                      <span>{label as string}</span>
-                    </div>
-                  ))}
+                <div className="mt-7 flex flex-wrap gap-3 sm:gap-4">
+                  <ButtonLink
+                    href="/checkout?course=sabjihub-blueprint"
+                    className="inline-flex h-11 items-center justify-center gap-2 rounded-full bg-brand-500 px-5 text-sm font-semibold text-white shadow-[0_12px_28px_rgba(22,163,74,0.26)] transition-transform hover:bg-brand-600 active:scale-[0.99] sm:h-12 sm:px-6"
+                  >
+                    <span>Enroll Now – Launch Offer</span>
+                    <span aria-hidden="true" className="text-lg leading-none">→</span>
+                  </ButtonLink>
+                  <ButtonLink href="#preview" variant="secondary" className="h-11 px-5 text-sm sm:h-12 sm:px-6">
+                    Watch Free Preview
+                  </ButtonLink>
                 </div>
 
-                <div className="mt-7 flex flex-wrap gap-3">
-                  <ButtonLink href="/checkout?course=sabjihub-blueprint" className="h-12 bg-brand-600 px-6 text-sm shadow-[0_12px_28px_rgba(22,163,74,0.24)]">
-                    Enroll Now
-                  </ButtonLink>
-                  <ButtonLink href="#how-it-works" variant="secondary" className="h-12 border-brand-200 px-5 text-sm">
-                    View Course Curriculum
-                  </ButtonLink>
+                <div className="mt-7">
+                  <HighlightRow
+                    items={[
+                      "Step-by-Step Training",
+                      "Real Business Case Study",
+                      "App Development + Marketing",
+                      "Local Orders & Growth Strategy"
+                    ]}
+                  />
                 </div>
               </div>
 
-              <HeroVisual previewVideo={previewVideo} variant="hero" />
+              <HeroVisual previewVideo={previewVideo} />
             </div>
           </Container>
         </section>
+        <section className="border-y border-emerald-100 bg-white py-14 sm:py-16">
+          <Container>
+            <div className="mx-auto max-w-3xl text-center">
+              <span className="inline-flex rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.22em] text-brand-700">
+                REAL SABJIHUB DASHBOARD
+              </span>
+              <h2 className="mt-4 text-balance text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl">
+                See the Business Behind the Course
+              </h2>
+              <p className="mt-4 text-base leading-7 text-slate-600">
+                Get a real look at the dashboard, operations and tools behind SabjiHub.
+              </p>
+            </div>
+
+            <div className="mx-auto mt-10 max-w-6xl">
+              <DashboardShowcase
+                src={dashboardShowcaseImage}
+                alt="SabjiHub admin dashboard screenshot"
+                updatedText="Saved and managed through Website Content"
+              />
+            </div>
+          </Container>
+        </section>
+
+        <AppShowcaseSection screenshots={appShowcaseScreenshots} />
+
         <section className="border-y border-slate-200 bg-white py-16 sm:py-20">
           <Container>
             <div className="mx-auto max-w-3xl text-center">

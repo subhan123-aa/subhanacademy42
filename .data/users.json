@@ -1,35 +1,5 @@
 [
   {
-    "id": "a178af14-5c13-4119-9500-20e3ae4d81e3",
-    "name": "aminmalke",
-    "email": "amin@gmail.com",
-    "passwordHash": "3848e8b88eac299293b23c29ffe24bcb:b18b5ad22428726238b762efff0d1c57cd81c88e14cf3efb34012bc4cfeabb50917af68c917e208ea1ebd8d7c7d9ccb1c5bc6b1ff840eb900652888daeb651ca",
-    "role": "student",
-    "createdAt": "2026-09-10T09:22:46.634+00:00",
-    "blocked": false,
-    "pendingPayment": false
-  },
-  {
-    "id": "e7e35875-b4af-40e7-9340-2c3a4b2213e6",
-    "name": "zeba",
-    "email": "zebamalek@gmail.com",
-    "passwordHash": "7d0b32ff24bb4a2e1414195581c89d71:9ae4d24be7ae09b1a2da3bf8dccb897d2f0fc66fcf921e3ab42135b137a5f8ff166fe557d4cf5a663ca89926de1cbc6fd20c13d652fe8234944ab790cf3677a5",
-    "role": "student",
-    "createdAt": "2026-09-10T09:35:04.347+00:00",
-    "blocked": false,
-    "pendingPayment": false
-  },
-  {
-    "id": "23fb4419-479c-4f3f-a074-4d1fb2ef1db1",
-    "name": "Subhan Ali",
-    "email": "thesubhan93@gmail.com",
-    "passwordHash": "eb9ab2812b228ba5be5450766de155a3:a87bc95e6a129fe2dcdb85b3f56fe58a37267f8eb0e14b19601c5ec6ebc76d3e382eab027452084f81288d6d9b8a275328cc4f4b89b0cb1ac14193dfeb7e7663",
-    "role": "student",
-    "createdAt": "2026-09-11T05:16:08.554+00:00",
-    "blocked": false,
-    "pendingPayment": false
-  },
-  {
     "id": "student-1",
     "name": "Aarav Khan",
     "email": "student@subhanacademy.in",
@@ -60,23 +30,13 @@
     "pendingPayment": false
   },
   {
-    "id": "f27ded13-636f-4b10-9ebc-e9df1550f536",
-    "name": "Arhan",
-    "email": "thesubhan56@gmail.com",
-    "passwordHash": "4ed1a3c5d33ae8d2a434dc74aadc89f4:5566aff0b73fe3b97f063406891255ffe38afa4b3ddd26a741605fe5017c42fa0f54259b7bad4ec4702ea2b23fd2840b81e658f929279eb0df58bddc0b607949",
+    "id": "a178af14-5c13-4119-9500-20e3ae4d81e3",
+    "name": "aminmalke",
+    "email": "amin@gmail.com",
+    "passwordHash": "3848e8b88eac299293b23c29ffe24bcb:b18b5ad22428726238b762efff0d1c57cd81c88e14cf3efb34012bc4cfeabb50917af68c917e208ea1ebd8d7c7d9ccb1c5bc6b1ff840eb900652888daeb651ca",
     "role": "student",
-    "createdAt": "2026-09-12T13:42:09.893+00:00",
+    "createdAt": "2026-09-10T09:22:46.634+00:00",
     "blocked": false,
-    "pendingPayment": true
-  },
-  {
-    "id": "1bbbb89c-6669-4fb9-bc82-578a80490bcd",
-    "name": "Arhan",
-    "email": "thesubhan656@gmail.com",
-    "passwordHash": "76dc732998ce8ffff99ca2f8f46922d3:95c016652cd8f63b715ef62520c82c2e25bda5ad2b2957c3db6818c5f4f9aad57066f1b5a9cb5442abeb6eafda603db6837e93117416a8f6a9524e345b1b0323",
-    "role": "student",
-    "createdAt": "2026-09-12T13:42:31.185Z",
-    "blocked": false,
-    "pendingPayment": true
+    "pendingPayment": false
   }
 ]

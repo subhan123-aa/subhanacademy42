@@ -78,21 +78,3 @@ export function createSupabaseAdminClient() {
     }
   });
 }
-
-/** Stateless server-side client for password authentication via Supabase Auth. */
-export function createSupabaseAuthClient() {
-  const url = getSupabaseUrl();
-  const key = getSupabaseAnonKey();
-
-  if (!url || !key) {
-    throw new Error("Supabase environment variables are not configured.");
-  }
-
-  return createClient(url, key, {
-    auth: {
-      persistSession: false,
-      autoRefreshToken: false,
-      detectSessionInUrl: false
-    }
-  });
-}

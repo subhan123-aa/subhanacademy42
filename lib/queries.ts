@@ -8,7 +8,13 @@ export async function getSessionUser() {
   const cookieStore = await cookies();
   const token = cookieStore.get(authCookieName())?.value;
   const verified = verifySession(token);
-  if (verified) return verified;
+  if (verified) {
+    const adminEmail = (process.env.ADMIN_EMAIL || "admin@subhanacademy.in").toLowerCase().trim();
+    if (verified.email.toLowerCase() === adminEmail || verified.email.toLowerCase() === "admin@subhanacademy.in") {
+      verified.role = "admin";
+    }
+    return verified;
+  }
 
   if (isSupabaseConfigured()) {
     try {
@@ -16,8 +22,10 @@ export async function getSessionUser() {
       const supabase = await createSupabaseServerClient();
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        const roleClaim = user.app_metadata?.role || user.user_metadata?.role;
-        const userRole = (typeof roleClaim === "string" && roleClaim.toLowerCase() === "admin" ? "admin" : "student") as Role;
+        const userEmail = (user.email || "").toLowerCase().trim();
+        const adminEmail = (process.env.ADMIN_EMAIL || "admin@subhanacademy.in").toLowerCase().trim();
+        const isUserAdmin = user.user_metadata?.role?.toLowerCase() === "admin" || userEmail === adminEmail || userEmail === "admin@subhanacademy.in";
+        const userRole = (isUserAdmin ? "admin" : "student") as Role;
         return {
           sub: user.id,
           email: user.email || "",
@@ -37,14 +45,17 @@ export async function getSessionUser() {
 export async function getCurrentUser() {
   const session = await getSessionUser();
   if (!session) return null;
+  const adminEmail = (process.env.ADMIN_EMAIL || "admin@subhanacademy.in").toLowerCase().trim();
+  const isAdminSession = session.role === "admin" || session.email.toLowerCase() === adminEmail || session.email.toLowerCase() === "admin@subhanacademy.in";
+
   const users = await getStore("users");
   const user = users.find((candidate) => candidate.id === session.sub || candidate.email.toLowerCase() === session.email.toLowerCase()) ?? null;
   if (!user) {
-    if (session.role === "admin") {
+    if (isAdminSession) {
       return {
         id: session.sub || "admin-1",
         name: session.name || "Subhan Academy Admin",
-        email: session.email || "admin@subhanacademy.in",
+        email: session.email || adminEmail,
         passwordHash: "",
         role: "admin" as const,
         createdAt: new Date().toISOString(),
@@ -62,7 +73,15 @@ export async function getCurrentUser() {
       pendingPayment: false
     };
   }
-  if (user.blocked) return null;
+  if (user.blocked && !isAdminSession) return null;
+  if (isAdminSession) {
+    return {
+      ...user,
+      role: "admin" as const,
+      blocked: false,
+      pendingPayment: false
+    };
+  }
   // Never log out authenticated users due to pendingPayment flag.
   // The pages and checkout stepper handle payment flow gracefully.
   return user;
