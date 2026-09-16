@@ -183,6 +183,10 @@ export async function middleware(req: NextRequest) {
     session = supabaseUser;
   }
 
+  if (!session && candidateTokens.length > 0) {
+    return supabaseResponse;
+  }
+
   if (!session) {
     const url = new URL("/auth/login", req.url);
     url.searchParams.set("next", pathname);
