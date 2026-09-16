@@ -1,21 +1,21 @@
 [
   {
+    "id": "admin-1",
+    "name": "Subhan Academy Admin",
+    "email": "admin@subhanacademy.in",
+    "passwordHash": "42994b0f1c125321a4a93401854f4307:5025dc409826b70e85044277553affeff9eec026b2b365791df4fd730b52d1649530a6657afdf39f44d4da57c95ac45350e72ce725317d79ee0e5ef884cab4ca",
+    "role": "admin",
+    "createdAt": "2026-09-10T09:16:33.223339+00:00",
+    "blocked": false,
+    "pendingPayment": false
+  },
+  {
     "id": "student-1",
     "name": "Aarav Khan",
     "email": "student@subhanacademy.in",
     "passwordHash": "3a14643fd9fb7e966321cd50c5760e84:6b730d7e846adf23cf371b506979e222ccadde1818b024429c2e5a19849df716cd22ca421db049a8c80ca24bea1213f955fbfb65eabded01f9d163284d1af7fa",
     "role": "student",
     "createdAt": "2026-09-10T09:13:16.42+00:00",
-    "blocked": false,
-    "pendingPayment": false
-  },
-  {
-    "id": "admin-1",
-    "name": "Subhan Academy Admin",
-    "email": "admin@subhanacademy.in",
-    "passwordHash": "4c632e1858a74bbcf4808c16b9b3e1f061d4a04bf1f95f4e6d420349633e9d89",
-    "role": "admin",
-    "createdAt": "2026-09-10T09:16:33.223339+00:00",
     "blocked": false,
     "pendingPayment": false
   },
@@ -30,6 +30,36 @@
     "pendingPayment": false
   },
   {
+    "id": "f27ded13-636f-4b10-9ebc-e9df1550f536",
+    "name": "Arhan",
+    "email": "thesubhan56@gmail.com",
+    "passwordHash": "4ed1a3c5d33ae8d2a434dc74aadc89f4:5566aff0b73fe3b97f063406891255ffe38afa4b3ddd26a741605fe5017c42fa0f54259b7bad4ec4702ea2b23fd2840b81e658f929279eb0df58bddc0b607949",
+    "role": "student",
+    "createdAt": "2026-09-12T13:42:09.893+00:00",
+    "blocked": false,
+    "pendingPayment": true
+  },
+  {
+    "id": "1bbbb89c-6669-4fb9-bc82-578a80490bcd",
+    "name": "Arhan",
+    "email": "thesubhan656@gmail.com",
+    "passwordHash": "76dc732998ce8ffff99ca2f8f46922d3:95c016652cd8f63b715ef62520c82c2e25bda5ad2b2957c3db6818c5f4f9aad57066f1b5a9cb5442abeb6eafda603db6837e93117416a8f6a9524e345b1b0323",
+    "role": "student",
+    "createdAt": "2026-09-12T13:42:31.185+00:00",
+    "blocked": false,
+    "pendingPayment": true
+  },
+  {
+    "id": "5289958d-68ca-4ed2-838a-308d9e6b0c25",
+    "name": "Subhan Khan",
+    "email": "trustushidden@gmail.com",
+    "passwordHash": "70124dd1a64c0735edecaf639996333c:b211dc9385a6bf92901dfb677b584953fe7784ef2a3c971ed39cd125e1e3855eb8eaa1524a571eb4733c1f205265ed04e4d528379ca06db4f4d9340cf8425ecf",
+    "role": "student",
+    "createdAt": "2026-09-12T15:10:40.131+00:00",
+    "blocked": false,
+    "pendingPayment": true
+  },
+  {
     "id": "a178af14-5c13-4119-9500-20e3ae4d81e3",
     "name": "aminmalke",
     "email": "amin@gmail.com",
@@ -38,5 +68,35 @@
     "createdAt": "2026-09-10T09:22:46.634+00:00",
     "blocked": false,
     "pendingPayment": false
+  },
+  {
+    "id": "e7e35875-b4af-40e7-9340-2c3a4b2213e6",
+    "name": "zeba",
+    "email": "zebamalek@gmail.com",
+    "passwordHash": "7d0b32ff24bb4a2e1414195581c89d71:9ae4d24be7ae09b1a2da3bf8dccb897d2f0fc66fcf921e3ab42135b137a5f8ff166fe557d4cf5a663ca89926de1cbc6fd20c13d652fe8234944ab790cf3677a5",
+    "role": "student",
+    "createdAt": "2026-09-10T09:35:04.347+00:00",
+    "blocked": false,
+    "pendingPayment": false
+  },
+  {
+    "id": "23fb4419-479c-4f3f-a074-4d1fb2ef1db1",
+    "name": "Subhan Ali",
+    "email": "thesubhan93@gmail.com",
+    "passwordHash": "eb9ab2812b228ba5be5450766de155a3:a87bc95e6a129fe2dcdb85b3f56fe58a37267f8eb0e14b19601c5ec6ebc76d3e382eab027452084f81288d6d9b8a275328cc4f4b89b0cb1ac14193dfeb7e7663",
+    "role": "student",
+    "createdAt": "2026-09-11T05:16:08.554+00:00",
+    "blocked": false,
+    "pendingPayment": false
+  },
+  {
+    "id": "953a1315-a0f9-481c-bbe1-ba6961db563a",
+    "name": "alke",
+    "email": "kamilllmalek@gmail.com",
+    "passwordHash": "9d772d98485826b8c809fd6b8a7f0632:a77d94cf72a5fa25b7e9d06bac851a5d615a97a9ad2aef7ac32eb6a3417eff9bc8489730ccafc85e803b4686d65371adeedb67ab70e17f1183c1195886eaf2cb",
+    "role": "student",
+    "createdAt": "2026-09-16T11:37:23.878Z",
+    "blocked": false,
+    "pendingPayment": true
   }
 ]

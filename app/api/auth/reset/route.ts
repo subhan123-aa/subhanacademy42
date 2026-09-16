@@ -25,7 +25,8 @@ export async function POST(req: NextRequest) {
 
     const token = signSession(user);
     const forwardedProto = (req.headers.get("x-forwarded-proto") || "").toLowerCase();
-    const isHttps = req.nextUrl.protocol === "https:" || forwardedProto.includes("https") || process.env.NODE_ENV === "production";
+    const isLocalhost = ["localhost", "127.0.0.1", "::1"].includes(req.nextUrl.hostname);
+    const isHttps = !isLocalhost && (req.nextUrl.protocol === "https:" || forwardedProto.includes("https") || process.env.NODE_ENV === "production");
     const response = NextResponse.json({ message: "Password updated successfully.", nextUrl: user.role === "admin" ? "/admin" : "/student/dashboard", token });
     response.cookies.set("subhan_session", token, {
       httpOnly: true,

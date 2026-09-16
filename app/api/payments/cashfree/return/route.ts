@@ -46,20 +46,18 @@ export async function GET(req: NextRequest) {
     const resolvedSlug = course?.slug || courseSlug || "sabjihub-blueprint";
     const cfOrderId = order.providerOrderId || providerOrderId;
 
-    // Server-side verification: Check actual Cashfree payment status if not already marked paid
-    if (order.status !== "paid") {
-      if (!cfOrderId) {
-        return redirectToCheckout(req, resolvedSlug, order.id, 1, "order_mismatch");
-      }
-
-      const payment = await isCashfreeOrderPaid(cfOrderId);
-      if (!payment.paid) {
-        console.warn(`[payments/cashfree/return] Cashfree payment check not paid for cfOrderId='${cfOrderId}'`);
-        return redirectToCheckout(req, resolvedSlug, order.id, 1, "pending");
-      }
-
-      await completeCashfreeOrder(order, payment.paymentId);
+    // Always verify with Cashfree before granting checkout success or enrollment access.
+    if (!cfOrderId) {
+      return redirectToCheckout(req, resolvedSlug, order.id, 1, "order_mismatch");
     }
+
+    const payment = await isCashfreeOrderPaid(cfOrderId);
+    if (!payment.paid) {
+      console.warn(`[payments/cashfree/return] Cashfree payment check not paid for cfOrderId='${cfOrderId}'`);
+      return redirectToCheckout(req, resolvedSlug, order.id, 1, "pending");
+    }
+
+    await completeCashfreeOrder(order, payment.paymentId);
 
     // Payment is verified and CONFIRMED: Redirect to STEP 2
     const redirectUrl = new URL("/checkout", req.url);
@@ -77,7 +75,8 @@ export async function GET(req: NextRequest) {
       if (user) {
         const token = signSession(user);
         const forwardedProto = (req.headers.get("x-forwarded-proto") || "").toLowerCase();
-        const isHttps = req.nextUrl.protocol === "https:" || forwardedProto.includes("https") || process.env.NODE_ENV === "production";
+        const isLocalhost = ["localhost", "127.0.0.1", "::1"].includes(req.nextUrl.hostname);
+        const isHttps = !isLocalhost && (req.nextUrl.protocol === "https:" || forwardedProto.includes("https") || process.env.NODE_ENV === "production");
         response.cookies.set(authCookieName(), token, {
           httpOnly: true,
           sameSite: "lax",

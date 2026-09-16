@@ -24,28 +24,7 @@ export async function POST(req: NextRequest) {
     const courses = await getStore("courses");
     const course = courses.find((item) => item.id === order.courseId);
 
-    if (order.status === "paid") {
-      await completeCashfreeOrder(order);
-      return NextResponse.json({
-        success: true,
-        verified: true,
-        status: "paid",
-        message: "Payment verified and enrollment complete.",
-        order: {
-          id: order.id,
-          courseId: order.courseId,
-          courseTitle: course?.title || "SabjiHub Blueprint",
-          courseSlug: course?.slug || "sabjihub-blueprint",
-          total: order.total,
-          status: order.status,
-          createdAt: order.createdAt,
-          emailAddress: order.emailAddress,
-          fullName: order.fullName
-        },
-        nextUrl: "/student/dashboard"
-      });
-    }
-
+    // Payment bypass is intentionally disabled; Cashfree verification is required.
     const providerOrderId = body.cashfreeOrderId || order.providerOrderId;
     if (!providerOrderId) {
       return NextResponse.json({ error: "Order mismatch during payment verification." }, { status: 400 });

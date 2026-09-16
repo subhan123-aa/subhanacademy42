@@ -11,7 +11,11 @@ function youtubeEmbedUrl(url?: string) {
   if (!url) return null;
   try {
     const parsed = new URL(url);
-    const videoId = parsed.hostname.includes("youtu.be") ? parsed.pathname.slice(1) : parsed.searchParams.get("v");
+    const hostname = parsed.hostname.toLowerCase();
+    const pathParts = parsed.pathname.split("/").filter(Boolean);
+    const videoId = hostname === "youtu.be"
+      ? pathParts[0]
+      : parsed.searchParams.get("v") || (pathParts[0] === "embed" || pathParts[0] === "shorts" || pathParts[0] === "live" ? pathParts[1] : null);
     return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
   } catch {
     return null;
@@ -27,7 +31,7 @@ export function CoursePlayer({
   enrollment?: Enrollment | null;
   canAccess: boolean;
 }) {
-  const sortedModules = useMemo(() => [...course.modules].sort((a, b) => a.order - b.order), [course.modules]);
+  const sortedModules = useMemo(() => [...course.modules].sort((a, b) => a.order - b.order).slice(0, 1), [course.modules]);
   const lessons = useMemo(() => sortedModules.flatMap((module) => module.lessons.map((lesson) => ({ ...lesson, moduleTitle: module.title }))), [sortedModules]);
   const [activeLesson, setActiveLesson] = useState<Lesson & { moduleTitle: string } | null>(lessons[0] ?? null);
   const [busy, setBusy] = useState(false);
@@ -35,6 +39,7 @@ export function CoursePlayer({
   const completedLessonIds = enrollment?.completedLessonIds ?? [];
   const completedCount = lessons.filter((lesson) => completedLessonIds.includes(lesson.id)).length;
   const progress = lessons.length ? Math.round((completedCount / lessons.length) * 100) : 0;
+  const activeVideoUrl = activeLesson?.videoUrl || activeLesson?.resources?.find((resource) => resource.type === "video")?.url;
 
   async function markCompleted() {
     if (!activeLesson) return;
@@ -77,8 +82,8 @@ export function CoursePlayer({
           </div>
           <div className="aspect-video bg-gradient-to-br from-brand-950 via-slate-950 to-brand-800 p-8 text-white">
             <div className="grid h-full place-items-center rounded-[1.5rem] border border-white/10 bg-white/5">
-              {canAccess && activeLesson && youtubeEmbedUrl(activeLesson.videoUrl) ? (
-                <iframe className="h-full w-full rounded-[1.5rem]" src={youtubeEmbedUrl(activeLesson.videoUrl) ?? undefined} title={activeLesson.title} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
+              {canAccess && activeLesson && youtubeEmbedUrl(activeVideoUrl) ? (
+                <iframe className="h-full w-full rounded-[1.5rem]" src={youtubeEmbedUrl(activeVideoUrl) ?? undefined} title={activeLesson.title} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
               ) : <div className="text-center">
                 <PlayCircle className="mx-auto h-16 w-16 text-brand-300" />
                 <p className="mt-4 text-sm text-white/70">{canAccess ? "Video link unavailable" : "Purchase required to unlock lessons"}</p>
