@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BookOpen, CheckCircle2, PlayCircle, Sparkles } from "lucide-react";
+import { BookOpen, PlayCircle, Sparkles } from "lucide-react";
 import { DashboardShell } from "@/components/dashboard-shell";
 import { getCurrentUser } from "@/lib/queries";
 import { getStore } from "@/lib/data";
@@ -28,7 +28,6 @@ export default async function StudentDashboardPage({
   const completed = enrollment?.completedLessonIds.length ?? 0;
   const totalLessons = course?.modules.flatMap((module) => module.lessons).length ?? 0;
   const percent = userProgress?.percent ?? (totalLessons ? Math.round((completed / totalLessons) * 100) : 0);
-  const modules = course?.modules.slice().sort((a, b) => a.order - b.order) ?? [];
 
   return (
     <DashboardShell
@@ -74,32 +73,6 @@ export default async function StudentDashboardPage({
           </section>
         )}
 
-        {course ? (
-          <section className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-soft sm:p-8">
-            <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 pb-5">
-              <div><h2 className="text-xl font-semibold text-slate-950">Lessons and Modules</h2><p className="mt-1 text-sm text-slate-500">Watch a lesson and continue where you left off.</p></div>
-              <Link href={`/student/courses/${course.id}`} className="inline-flex items-center gap-2 rounded-full bg-brand-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-700"><PlayCircle className="h-4 w-4" />Open Course</Link>
-            </div>
-            <div className="mt-6 grid gap-5">
-              {modules.map((module) => (
-                <div key={module.id} className="rounded-2xl border border-slate-200 p-4 sm:p-5">
-                  <div className="flex items-center justify-between gap-3"><h3 className="font-semibold text-slate-950">{module.order.toString().padStart(2, "0")} - {module.title}</h3><span className="text-xs text-slate-500">{module.lessons.length} lessons</span></div>
-                  <div className="mt-4 grid gap-3">
-                    {module.lessons.map((lesson) => {
-                      const lessonCompleted = enrollment?.completedLessonIds.includes(lesson.id);
-                      const videoTitle = lesson.resources?.find((resource) => resource.type === "video")?.title;
-                      return <Link key={lesson.id} href={`/student/courses/${course.id}`} className="flex items-center gap-4 rounded-2xl border border-slate-100 p-3 transition hover:border-brand-200 hover:bg-brand-50">
-                        <img src={lesson.thumbnail || course.thumbnail} alt="" className="h-14 w-24 shrink-0 rounded-xl object-cover" />
-                        <div className="min-w-0 flex-1"><p className="truncate font-medium text-slate-950">{videoTitle || lesson.title}</p><p className="mt-1 truncate text-sm text-slate-500">{lesson.description || lesson.summary}</p></div>
-                        <div className="flex shrink-0 items-center gap-2 text-xs text-slate-500"><span>{lesson.duration}</span>{lessonCompleted ? <CheckCircle2 className="h-4 w-4 text-brand-600" /> : <PlayCircle className="h-4 w-4 text-brand-600" />}</div>
-                      </Link>;
-                    })}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-        ) : null}
       </div>
     </DashboardShell>
   );
