@@ -19,7 +19,10 @@ function getSessionSecret() {
     const unquoted = raw.replace(/^["']|["']$/g, "").trim();
     if (unquoted) return unquoted;
   }
-  return "subhan-academy-default-session-secret-key-32ch";
+  // Fallback to a deterministic value (like Supabase URL) if SESSION_SECRET is missing in production,
+  // to prevent login crashes on live sites that missed configuring this variable.
+  const fallbackKey = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || "subhan-academy-default-session-secret-key-32ch";
+  return fallbackKey.trim();
 }
 
 function base64Url(input: Buffer | string) {
