@@ -81,6 +81,7 @@ export function AuthPanel({
           try {
             const response = await fetch(config.endpoint, {
               method: "POST",
+              credentials: "same-origin",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
                 ...Object.fromEntries(formData.entries()),
